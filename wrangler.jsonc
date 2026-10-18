@@ -1,0 +1,6 @@
+{
+  // Static site only: Cloudflare serves the files in ./public
+  "name": "jerry-lotto47",
+  "compatibility_date": "2026-10-01",
+  "assets": { "directory": "./public" }
+}
