@@ -59,7 +59,7 @@ body { margin: 0; background: var(--color-bg); color: var(--color-fg); font-fami
 .jl-foot { margin-top: var(--cds-gap-xl); font-size: var(--cds-font-size-caption); color: var(--color-fg-muted); }
 [hidden] { display: none !important; }
 </style>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/d3/7.9.0/d3.min.js"></script>
+<script src="d3.min.js"></script>
 <script>
 /* Small stand-in for the dashboard runtime: loads draws.json, runs the calculations, redraws on data and resize. */
 window.dash = (() => {
@@ -79,7 +79,10 @@ window.dash = (() => {
     .catch((e) => { console.error(e); status = 'error'; fire(); });
   let w = 0, t;
   addEventListener('resize', () => { clearTimeout(t); t = setTimeout(() => { if (innerWidth !== w) { w = innerWidth; fire(); } }, 150); });
+  let params = { from: '2026-07-01', to: null };
   return {
+    params: () => ({ ...params }),
+    setParams: (p) => { params = { ...params, ...p }; fire(); },
     colors,
     calc: (id, o) => calcs.push({ id, inputs: o.inputs, fn: o.fn }),
     data: (id) => status !== 'ok' ? { status, data: [] } : { status, data: id === 'draws' ? draws : (results[id] || []) },
@@ -118,6 +121,19 @@ window.dash = (() => {
 .jl-seg button[aria-pressed="true"] { background: var(--color-fg); color: var(--color-bg); }
 .jl-seg button:focus-visible, .jl-search:focus-visible { outline: 2px solid var(--hot); outline-offset: 2px; }
 .jl-balls { display: grid; grid-template-columns: repeat(auto-fill, minmax(3.4rem, 1fr)); gap: var(--cds-gap-sm); min-height: 12rem; }
+.jl-range-ctl { display: flex; flex-wrap: wrap; gap: var(--cds-gap-md); align-items: end; }
+.jl-range-ctl label { display: grid; gap: 2px; font-size: var(--cds-font-size-caption); color: var(--color-fg-muted); }
+.jl-range-ctl input[type=date] { font: inherit; font-size: var(--cds-font-size-body); padding: var(--cds-pad-xs) var(--cds-pad-sm); border: 1px solid var(--color-border-line); border-radius: var(--cds-radius); background: var(--color-bg); color: var(--color-fg); min-height: 2.5rem; }
+.jl-range-ctl input[type=date]:focus-visible { outline: 2px solid var(--hot); outline-offset: 2px; }
+.jl-range-sum { margin: 0; font-size: var(--cds-font-size-body); line-height: 1.5; max-width: 70ch; }
+.jl-range-sum b { font-weight: 600; }
+.jl-sub2 { margin: 0; font-size: var(--cds-font-size-heading); font-weight: var(--cds-font-weight-medium); }
+.jl-six.cold span { background: color-mix(in srgb, var(--cds-chart-2, #2563a8) 16%, var(--color-panel)); border-style: dashed; }
+.jl-six figure { margin: 0; display: grid; justify-items: center; gap: 2px; }
+.jl-six figcaption { font-size: var(--cds-font-size-caption); color: var(--color-fg-muted); }
+.jl-pairs { margin: 0; padding: 0; list-style: none; display: grid; gap: var(--cds-gap-xs); font-size: var(--cds-font-size-body); }
+.jl-pairs li { display: flex; justify-content: space-between; gap: var(--cds-gap-md); border-bottom: 1px solid var(--color-border-line); padding-block: var(--cds-pad-xs); }
+.jl-pairs li span:last-child { color: var(--color-fg-muted); font-size: var(--cds-font-size-caption); align-self: center; }
 .jl-ball { aspect-ratio: 1; max-width: 100%; border-radius: 50%; display: grid; place-content: center; text-align: center; border: 1px solid var(--color-border-line); line-height: 1.05; }
 .jl-ball .n { font-family: var(--font-anthropic-serif); font-size: var(--cds-font-size-heading); }
 .jl-ball .c::after { content: '×'; }
@@ -183,16 +199,66 @@ window.dash = (() => {
     <p class="jl-note dash-skeleton" id="switch-note" data-source="summary"></p>
   </section>
 
-  <section class="jl-card" id="balls-card">
-    <h2>How often each number came up</h2>
-    <p class="jl-note">Each ball shows how many times it was drawn. Warmer balls came up more than an even share; dashed, cooler balls came up less.</p>
-    <div class="jl-seg" role="group" aria-label="Period">
-      <button type="button" id="p-all" data-p="all" aria-pressed="true">All draws</button>
-      <button type="button" id="p-before" data-p="before" aria-pressed="false">Before March</button>
-      <button type="button" id="p-since" data-p="since" aria-pressed="false">Since March</button>
+  <section class="jl-card" id="range">
+    <h2>Pick your own dates</h2>
+    <p class="jl-note">Choose a stretch of draws with a quick button or the date boxes. Everything in this box, and the list of every draw further down, counts only the draws inside those dates.</p>
+    <div class="jl-range-ctl">
+      <div class="jl-seg" role="group" aria-label="Quick date ranges" id="presets">
+        <button type="button" id="pr-jul" data-preset="jul" aria-pressed="false">Since July 1</button>
+        <button type="button" id="pr-3m" data-preset="3m" aria-pressed="false">Last 3 months</button>
+        <button type="button" id="pr-since" data-preset="since" aria-pressed="false">Since March</button>
+        <button type="button" id="pr-before" data-preset="before" aria-pressed="false">Before March</button>
+        <button type="button" id="pr-all" data-preset="all" aria-pressed="false">All draws</button>
+      </div>
+      <label for="r-from">From<input type="date" id="r-from" min="2000-01-01" max="2099-12-31"></label>
+      <label for="r-to">To<input type="date" id="r-to" min="2000-01-01" max="2099-12-31"></label>
     </div>
-    <div class="jl-balls" id="balls" data-source="freq"></div>
+    <p class="jl-range-sum dash-skeleton" id="r-summary" data-source="draws"></p>
+
+    <div class="jl-tiles" id="r-tiles" data-source="draws backtest">
+      <div class="jl-tile">
+        <span class="jl-label">Draws in these dates</span>
+        <span class="jl-big dash-skeleton" id="r-n">—</span>
+        <span class="jl-sub" id="r-n-sub"></span>
+      </div>
+      <div class="jl-tile">
+        <span class="jl-label">Hot-six picks in these dates</span>
+        <span class="jl-big dash-skeleton" id="r-bt">—</span>
+        <span class="jl-sub" id="r-bt-sub"></span>
+        <span class="jl-pill" id="r-bt-pill" hidden></span>
+      </div>
+      <div class="jl-tile">
+        <span class="jl-label">Average total of the six numbers</span>
+        <span class="jl-big dash-skeleton" id="r-sum">—</span>
+        <span class="jl-sub">A random draw averages 144.</span>
+      </div>
+      <div class="jl-tile">
+        <span class="jl-label">Most common odd / even split</span>
+        <span class="jl-big dash-skeleton" id="r-odd">—</span>
+        <span class="jl-sub" id="r-odd-sub"></span>
+      </div>
+    </div>
+
+    <div class="jl-grid2" id="r-sixes" data-source="draws">
+      <div class="jl-tile">
+        <h3 class="jl-sub2">Hot six in these dates</h3>
+        <div class="jl-six" id="r-hot"></div>
+        <span class="jl-sub">Times drawn under each ball. Ties go to the number drawn most recently.</span>
+      </div>
+      <div class="jl-tile">
+        <h3 class="jl-sub2">Cold six in these dates</h3>
+        <div class="jl-six cold" id="r-cold"></div>
+        <span class="jl-sub">Drawn least often. Ties go to the number that has waited longest.</span>
+      </div>
+    </div>
+
+    <h3 class="jl-sub2">How often each number came up</h3>
+    <p class="jl-note">Warmer balls came up more than an even share for these dates; dashed, cooler balls came up less.</p>
+    <div class="jl-balls" id="balls" data-source="draws"></div>
     <div class="jl-legend" id="balls-legend"></div>
+
+    <h3 class="jl-sub2">Numbers that came up together most</h3>
+    <ul class="jl-pairs" id="r-pairs" data-source="draws"></ul>
   </section>
 
   <div class="jl-grid2">
@@ -218,7 +284,7 @@ window.dash = (() => {
 
   <section class="jl-card" id="history">
     <h2>Every draw and how the hot six did</h2>
-    <p class="jl-note">The hot six is worked out from the draws before each one. Draws since March 1, 2026 are marked on the left edge.</p>
+    <p class="jl-note">Shows the draws in the dates you picked above. The hot six is worked out from all draws before each one. Draws since March 1, 2026 are marked on the left edge.</p>
     <input class="jl-search" id="search" type="search" placeholder="Find a date or number" aria-label="Find a date or number">
     <div class="jl-tablebox">
       <table class="jl-table" id="bt-table" data-source="backtest" data-row-key="date">
@@ -338,14 +404,32 @@ dash.calc('summary', {
   const fmtOdds = (n) => n >= 1000 ? 'rarer than 1 in 1,000' : '1 in ' + d3.format(',')(n < 100 ? n : +d3.format('.2r')(n));
   const q = (sel) => document.querySelector(sel);
   const setText = (sel, text) => { const el = typeof sel === 'string' ? q(sel) : sel; el.textContent = text; el.classList.remove('dash-skeleton'); };
-  let period = 'all';
   let firstBalls = true;
-
-  document.querySelectorAll('.jl-seg button').forEach((btn) => btn.addEventListener('click', () => {
-    period = btn.dataset.p;
-    document.querySelectorAll('.jl-seg button').forEach((b) => b.setAttribute('aria-pressed', String(b === btn)));
-    drawBalls();
+  const hasParams = typeof dash.params === 'function' && typeof dash.setParams === 'function';
+  let localRange = { from: '2026-07-01', to: null };
+  const getRange = () => { const p = hasParams ? dash.params() : localRange; return { from: p.from || null, to: p.to || null }; };
+  const setRange = (r) => { if (hasParams) dash.setParams(r); else { localRange = { ...localRange, ...r }; drawRange(); drawTable(); } };
+  if (hasParams && dash.params().from === undefined) dash.setParams({ from: '2026-07-01', to: null });
+  const iso = (d) => d.toISOString().slice(0, 10);
+  const presetRange = (name, last) => {
+    if (name === 'jul') return { from: '2026-07-01', to: null };
+    if (name === 'since') return { from: CUTOFF, to: null };
+    if (name === 'before') return { from: null, to: iso(new Date(Date.parse(CUTOFF + 'T00:00:00Z') - 864e5)) };
+    if (name === '3m') { const d = new Date(last + 'T00:00:00Z'); d.setUTCMonth(d.getUTCMonth() - 3); d.setUTCDate(d.getUTCDate() + 1); return { from: iso(d), to: null }; }
+    return { from: null, to: null };
+  };
+  document.querySelectorAll('#presets button').forEach((btn) => btn.addEventListener('click', () => {
+    const D = dash.data('draws'); const last = D.status === 'ok' && D.data.length ? D.data.map((r) => String(r.date).slice(0, 10)).sort().pop() : iso(new Date());
+    setRange(presetRange(btn.dataset.preset, last));
   }));
+  ['#r-from', '#r-to'].forEach((sel) => {
+    const el = q(sel);
+    el.addEventListener('change', () => {
+      if (el.value && !el.validity.valid) return;
+      setRange(sel === '#r-from' ? { from: el.value || null } : { to: el.value || null });
+    });
+    el.addEventListener('blur', () => showRangeInputs());
+  });
 
   const fail = (el) => { el.replaceChildren(); const d = document.createElement('div'); d.className = 'jl-fail'; d.textContent = 'Failed to load'; el.appendChild(d); el.classList.remove('dash-skeleton'); };
   const bad = (st) => st === 'error' || st === 'connect' || st === 'declined' || st === 'missing';
@@ -460,14 +544,116 @@ dash.calc('summary', {
       .on('pointerleave', () => { tip.style('display', 'none'); dot.style('display', 'none'); });
   }
 
-  function drawBalls() {
+  function inRangeRows() {
+    const D = dash.data('draws');
+    if (D.status !== 'ok') return null;
+    const all = D.data.map((d) => ({ date: String(d.date).slice(0, 10), n: [d.n1, d.n2, d.n3, d.n4, d.n5, d.n6].map(Number) })).sort((a, b) => a.date.localeCompare(b.date));
+    const { from, to } = getRange();
+    return { all, rows: all.filter((d) => (!from || d.date >= from) && (!to || d.date <= to)), from, to };
+  }
+
+  function showRangeInputs() {
+    const R = inRangeRows(); if (!R) return;
+    const first = R.all[0].date, last = R.all[R.all.length - 1].date;
+    const f = q('#r-from'), t = q('#r-to');
+    [f, t].forEach((el) => { el.min = first; el.max = last; });
+    if (f !== document.activeElement) f.value = R.from || first;
+    if (t !== document.activeElement) t.value = R.to || last;
+    document.querySelectorAll('#presets button').forEach((b) => {
+      const p = presetRange(b.dataset.preset, last);
+      const same = (p.from || null) === (R.from || null) && (p.to || null) === (R.to || null);
+      b.setAttribute('aria-pressed', String(same));
+    });
+  }
+
+  function sixBalls(box, list) {
+    box.replaceChildren(...list.map((r) => {
+      const fig = document.createElement('figure');
+      const ball = document.createElement('span'); ball.textContent = r.number;
+      const cap = document.createElement('figcaption'); cap.textContent = r.count + '×';
+      fig.append(ball, cap); return fig;
+    }));
+  }
+
+  function drawRange() {
+    const R = inRangeRows();
+    const ids = ['#r-summary', '#r-n', '#r-bt', '#r-sum', '#r-odd'];
+    if (!R) {
+      const st = dash.data('draws').status;
+      if (bad(st)) { fail(q('#balls')); ids.forEach((s) => setText(s, '—')); }
+      return;
+    }
+    showRangeInputs();
+    const rows = R.rows, n = rows.length;
+    const lo = rows.length ? rows[0].date : null, hi = rows.length ? rows[rows.length - 1].date : null;
+
+    // Missing draws: Wednesdays and Saturdays inside the covered span with no result stored
+    let missing = 0;
+    if (n) {
+      const have = new Set(rows.map((r) => r.date));
+      const startD = Date.parse((R.from && R.from > R.all[0].date ? R.from : R.all[0].date) + 'T00:00:00Z');
+      const endD = Date.parse((R.to && R.to < R.all[R.all.length - 1].date ? R.to : R.all[R.all.length - 1].date) + 'T00:00:00Z');
+      for (let t = startD; t <= endD; t += 864e5) { const d = new Date(t); const wd = d.getUTCDay(); if ((wd === 3 || wd === 6) && !have.has(iso(d))) missing++; }
+    }
+
+    const sumEl = q('#r-summary'); sumEl.replaceChildren(); sumEl.classList.remove('dash-skeleton');
+    const add = (t, bold) => { const el = bold ? document.createElement('b') : document.createTextNode(t); if (bold) el.textContent = t; sumEl.appendChild(el); };
+    if (!n) {
+      add('No draws fall between those dates. Pick a wider range.');
+      ['#r-n', '#r-bt', '#r-sum', '#r-odd'].forEach((s) => setText(s, '—'));
+      ['#r-n-sub', '#r-bt-sub', '#r-odd-sub'].forEach((s) => setText(s, ''));
+      q('#r-bt-pill').hidden = true;
+      ['#r-hot', '#r-cold', '#balls', '#r-pairs', '#balls-legend'].forEach((s) => q(s).replaceChildren());
+      return;
+    }
+    const exp = n * 6 / 47;
+    add('Counting '); add(d3.format(',')(n) + ' draws', true); add(' from ' + fmtDate(lo) + ' to ' + fmtDate(hi) + '. ');
+    add('An even share would be about ' + d3.format('.1f')(exp) + ' times per number. ');
+    if (n < 60) add('With this few draws, numbers drift a few hits above or below that by pure chance, so treat small gaps as noise. ');
+    if (missing) add('About ' + missing + ' draws in this stretch are missing from the data.');
+
+    // Counts
+    const count = new Array(48).fill(0), lastSeen = new Array(48).fill(null);
+    rows.forEach((d) => d.n.forEach((x) => { count[x]++; lastSeen[x] = d.date; }));
+    const nums = Array.from({ length: 47 }, (_, i) => ({ number: i + 1, count: count[i + 1], last: lastSeen[i + 1] }));
+    const hot = [...nums].sort((a, b) => b.count - a.count || String(b.last).localeCompare(String(a.last)) || a.number - b.number).slice(0, 6);
+    const cold = [...nums].sort((a, b) => a.count - b.count || String(a.last || '').localeCompare(String(b.last || '')) || a.number - b.number).slice(0, 6);
+    sixBalls(q('#r-hot'), hot); sixBalls(q('#r-cold'), cold);
+
+    setText('#r-n', d3.format(',')(n));
+    setText('#r-n-sub', fmtShort(lo) + ' to ' + fmtDate(hi));
+
+    // Hot-six method inside the range (picks use all history before each draw)
+    const B = dash.data('backtest');
+    const pill = q('#r-bt-pill');
+    if (B.status === 'ok') {
+      const bt = B.data.filter((r) => (!R.from || r.date >= R.from) && (!R.to || r.date <= R.to));
+      if (bt.length) {
+        const mu = 36 / 47, v = 6 * (6 / 47) * (41 / 47) * (41 / 46);
+        const m = bt.reduce((s, r) => s + r.matches, 0) / bt.length;
+        const z = (m - mu) / Math.sqrt(v / bt.length);
+        const erfc = (x) => { const t = 1 / (1 + 0.5 * Math.abs(x)); const r = t * Math.exp(-x * x - 1.26551223 + t * (1.00002368 + t * (0.37409196 + t * (0.09678418 + t * (-0.18628806 + t * (0.27886807 + t * (-1.13520398 + t * (1.48851587 + t * (-0.82215223 + t * 0.17087277))))))))); return x >= 0 ? r : 2 - r; };
+        const p = 0.5 * erfc(z / Math.SQRT2);
+        setText('#r-bt', d3.format('.2f')(m));
+        setText('#r-bt-sub', 'matched per draw on average over ' + bt.length + ' draws. Random picks average ' + d3.format('.2f')(mu) + '.');
+        const strong = m > mu && p <= 0.05;
+        pill.hidden = false; pill.className = 'jl-pill ' + (strong ? 'up' : 'flat');
+        pill.textContent = strong ? 'Beat random. Luck alone: ' + fmtOdds(Math.round(1 / p)) : (m > mu ? 'A little above random' : 'About what random picks do');
+      } else { setText('#r-bt', '—'); setText('#r-bt-sub', 'Not enough earlier draws to make picks for these dates.'); pill.hidden = true; }
+    }
+
+    const sums = rows.map((d) => d.n.reduce((a, b) => a + b, 0));
+    setText('#r-sum', d3.format('.0f')(d3.mean(sums)));
+    const odds = d3.rollups(rows, (v) => v.length, (d) => d.n.filter((x) => x % 2).length).sort((a, b) => b[1] - a[1]);
+    const [oc, ocn] = odds[0];
+    setText('#r-odd', oc + '–' + (6 - oc));
+    setText('#r-odd-sub', oc + ' odd and ' + (6 - oc) + ' even numbers, in ' + d3.format('.0%')(ocn / n) + ' of these draws. In random draws the most common split is 3–3, about 1 draw in 3.');
+
+    // Ball board
     const box = q('#balls'), leg = q('#balls-legend');
-    const F = dash.data('freq');
-    if (F.status !== 'ok') { if (bad(F.status)) fail(box); else box.replaceChildren(); return; }
-    const key = period, expKey = 'expected_' + period;
     box.replaceChildren();
-    F.data.forEach((r, i) => {
-      const ratio = r[expKey] ? r[key] / r[expKey] : 1;
+    nums.forEach((r, i) => {
+      const ratio = exp ? r.count / exp : 1;
       const el = document.createElement('div');
       el.className = 'jl-ball' + (ratio < 1 ? ' cold' : '') + (firstBalls ? ' in' : '');
       if (firstBalls) el.style.animationDelay = (i * 12) + 'ms';
@@ -475,20 +661,30 @@ dash.calc('summary', {
       el.style.background = ratio >= 1
         ? `color-mix(in srgb, ${dash.colors[0]} ${pct}%, var(--color-panel))`
         : `color-mix(in srgb, ${dash.colors[1]} ${Math.round(pct * 0.6)}%, var(--color-panel))`;
-      const n = document.createElement('span'); n.className = 'n'; n.textContent = r.number;
-      const c = document.createElement('span'); c.className = 'c'; c.textContent = r[key];
-      c.dataset.source = 'freq'; c.dataset.where = 'number=' + r.number; c.dataset.field = key;
-      el.append(n, c);
-      el.setAttribute('aria-label', `Number ${r.number}: drawn ${r[key]} times, even share ${d3.format('.1f')(r[expKey])}`);
+      const nn = document.createElement('span'); nn.className = 'n'; nn.textContent = r.number;
+      const c = document.createElement('span'); c.className = 'c'; c.textContent = r.count;
+      el.append(nn, c);
+      el.setAttribute('aria-label', `Number ${r.number}: drawn ${r.count} times, even share ${d3.format('.1f')(exp)}`);
       box.appendChild(el);
     });
     firstBalls = false;
-    const exp = F.data[0][expKey];
     leg.replaceChildren();
-    const item = (bg, text, dashed) => { const s = document.createElement('span'); const i = document.createElement('i'); i.style.background = bg; if (dashed) i.style.borderStyle = 'dashed'; s.append(i, text); leg.appendChild(s); };
+    const item = (bg, text, dashed) => { const sp = document.createElement('span'); const i = document.createElement('i'); i.style.background = bg; if (dashed) i.style.borderStyle = 'dashed'; sp.append(i, text); leg.appendChild(sp); };
     item(`color-mix(in srgb, ${dash.colors[0]} 60%, var(--color-panel))`, 'Drawn more than an even share');
     item(`color-mix(in srgb, ${dash.colors[1]} 40%, var(--color-panel))`, 'Drawn less', true);
-    const e = document.createElement('span'); e.textContent = 'Even share in this period: ' + d3.format('.1f')(exp) + ' times each'; leg.appendChild(e);
+    const e = document.createElement('span'); e.textContent = 'Even share for these dates: ' + d3.format('.1f')(exp) + ' times each'; leg.appendChild(e);
+
+    // Pairs
+    const pc = new Map();
+    rows.forEach((d) => { for (let i = 0; i < 6; i++) for (let j = i + 1; j < 6; j++) { const k = d.n[i] + '-' + d.n[j]; pc.set(k, (pc.get(k) || 0) + 1); } });
+    const pexp = n * 15 / 1081;
+    const top = [...pc].sort((a, b) => b[1] - a[1] || a[0].localeCompare(b[0], undefined, { numeric: true })).slice(0, 6);
+    q('#r-pairs').replaceChildren(...top.map(([k, v]) => {
+      const li = document.createElement('li');
+      const a = document.createElement('span'); a.textContent = k.replace('-', ' & ');
+      const b = document.createElement('span'); b.textContent = v + ' times together (about ' + d3.format('.1f')(pexp) + ' expected)';
+      li.append(a, b); return li;
+    }));
   }
 
   function drawGaps() {
@@ -507,7 +703,8 @@ dash.calc('summary', {
     const B = dash.data('backtest');
     if (B.status !== 'ok') { tb.replaceChildren(); return; }
     const term = q('#search').value.trim().toLowerCase();
-    const rows = [...B.data].reverse().filter((r) => !term || (r.date + ' ' + fmtDate(r.date) + ' ' + r.numbers + ' ').toLowerCase().includes(term)
+    const { from, to } = getRange();
+    const rows = [...B.data].reverse().filter((r) => (!from || r.date >= from) && (!to || r.date <= to)).filter((r) => !term || (r.date + ' ' + fmtDate(r.date) + ' ' + r.numbers + ' ').toLowerCase().includes(term)
       || r.numbers.split(' ').includes(term));
     tb.replaceChildren(...rows.map((r) => {
       const tr = document.createElement('tr'); tr.dataset.key = r.date; if (r.period === 'Since March') tr.className = 'since';
@@ -518,7 +715,7 @@ dash.calc('summary', {
   }
   q('#search').addEventListener('input', drawTable);
 
-  dash.onData(() => { drawTiles(); drawChart(); drawBalls(); drawGaps(); drawTable(); });
+  dash.onData(() => { drawTiles(); drawChart(); drawRange(); drawGaps(); drawTable(); });
 })();
 </script>
 
