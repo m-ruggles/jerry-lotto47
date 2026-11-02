@@ -1,6 +1,17 @@
 {
-  // Static site only: Cloudflare serves the files in ./public
+  // Static page in ./public, plus a small Worker (src/worker.js) for /api/* so Jerry can enter draws.
   "name": "jerry-lotto47",
+  "main": "src/worker.js",
   "compatibility_date": "2026-10-01",
-  "assets": { "directory": "./public" }
+  "assets": {
+    "directory": "./public",
+    "binding": "ASSETS",
+    "run_worker_first": ["/api/*"]
+  },
+  // Entered draws are kept in a SQLite-backed Durable Object; Cloudflare creates it on first deploy.
+  "durable_objects": {
+    "bindings": [{ "name": "DRAWS", "class_name": "DrawStore" }]
+  },
+  "migrations": [{ "tag": "v1", "new_sqlite_classes": ["DrawStore"] }]
+  // The entry PIN is the secret ENTRY_PIN, set in the Cloudflare dashboard (Settings > Variables and Secrets).
 }
