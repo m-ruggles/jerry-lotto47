@@ -61,10 +61,12 @@ body { margin: 0; background: var(--color-bg); color: var(--color-fg); font-fami
 </style>
 <script src="d3.min.js"></script>
 <script>
-/* Small stand-in for the dashboard runtime: loads draws.json, runs the calculations, redraws on data and resize. */
+/* Small stand-in for the dashboard runtime: loads draws.json plus the draws Jerry entered (/api/draws),
+   runs the calculations, redraws on data and resize. An entered draw replaces a draws.json draw on the same date. */
 window.dash = (() => {
   const calcs = [], results = {}, cbs = [];
   let status = 'loading', draws = [];
+  let entry = { status: 'loading', rows: [], ready: false, base: new Map(), baseLast: null };
   const colors = ['var(--cds-chart-1)', 'var(--cds-chart-2)'];
   const run = () => {
     calcs.forEach((c) => {
@@ -73,10 +75,21 @@ window.dash = (() => {
     });
   };
   const fire = () => cbs.forEach((fn) => { try { fn(); } catch (e) { console.error(e); } });
-  fetch('draws.json', { cache: 'no-cache' })
-    .then((r) => { if (!r.ok) throw new Error('HTTP ' + r.status); return r.json(); })
-    .then((rows) => { draws = rows; run(); status = 'ok'; fire(); })
-    .catch((e) => { console.error(e); status = 'error'; fire(); });
+  const key = (d) => String(d.date).slice(0, 10);
+  const load = () => Promise.all([
+    fetch('draws.json', { cache: 'no-cache' }).then((r) => { if (!r.ok) throw new Error('HTTP ' + r.status); return r.json(); }),
+    fetch('/api/draws', { cache: 'no-store' })
+      .then((r) => { if (!r.ok) throw new Error('HTTP ' + r.status); return r.json(); })
+      .then((j) => ({ ok: true, draws: j.draws || [], ready: !!j.entry_ready }), (e) => { console.warn('Entered draws not loaded', e); return { ok: false, draws: [], ready: false }; }),
+  ]).then(([base, api]) => {
+    const merged = new Map(base.map((d) => [key(d), { ...d, date: key(d) }]));
+    api.draws.forEach((d) => merged.set(d.date, { date: d.date, n1: d.n1, n2: d.n2, n3: d.n3, n4: d.n4, n5: d.n5, n6: d.n6, entered: true }));
+    draws = [...merged.values()].sort((a, b) => a.date.localeCompare(b.date));
+    const baseMap = new Map(base.map((d) => [key(d), d]));
+    entry = { status: api.ok ? 'ok' : 'error', rows: api.draws, ready: api.ready, base: baseMap, baseLast: [...baseMap.keys()].sort().pop() || null };
+    run(); status = 'ok'; fire();
+  }).catch((e) => { console.error(e); status = 'error'; entry = { ...entry, status: 'error' }; fire(); });
+  load();
   let w = 0, t;
   addEventListener('resize', () => { clearTimeout(t); t = setTimeout(() => { if (innerWidth !== w) { w = innerWidth; fire(); } }, 150); });
   let params = { from: '2026-07-01', to: null };
@@ -86,6 +99,8 @@ window.dash = (() => {
     colors,
     calc: (id, o) => calcs.push({ id, inputs: o.inputs, fn: o.fn }),
     data: (id) => status !== 'ok' ? { status, data: [] } : { status, data: id === 'draws' ? draws : (results[id] || []) },
+    entry: () => entry,
+    reload: load,
     onData: (fn) => { cbs.push(fn); try { fn(); } catch (e) { console.error(e); } },
   };
 })();
@@ -155,6 +170,39 @@ window.dash = (() => {
 .jl [data-dash-source-state=empty] { color: transparent; }
 .jl [data-dash-source-state=refreshing] { opacity: .5; transition: opacity var(--cds-dur-slow); }
 .jl-about ul { margin: 0; padding-left: 1.1rem; display: grid; gap: var(--cds-gap-xs); font-size: var(--cds-font-size-caption); color: var(--color-fg-muted); line-height: 1.5; max-width: 72ch; }
+/* Entry card: big, plain controls for typing in a new drawing */
+.jl-entry { border-color: color-mix(in srgb, var(--hot) 35%, var(--color-border-line)); }
+.jl-entry-status { margin: 0; font-size: var(--cds-font-size-body); line-height: 1.5; }
+.jl-entry-status b { font-weight: 600; }
+.jl-chips { display: flex; flex-wrap: wrap; gap: var(--cds-gap-sm); }
+.jl-chips button { font: inherit; font-size: var(--cds-font-size-body); padding: var(--cds-pad-xs) var(--cds-pad-md); border-radius: 999px; border: 1px dashed var(--hot); background: transparent; color: var(--color-fg); cursor: pointer; min-height: 2.5rem; }
+.jl-chips button[aria-pressed="true"] { background: color-mix(in srgb, var(--hot) 18%, var(--color-panel)); border-style: solid; }
+.jl-form { display: grid; gap: var(--cds-gap-md); }
+.jl-form fieldset { border: 0; margin: 0; padding: 0; min-width: 0; }
+.jl-form legend, .jl-form .lbl { font-size: var(--cds-font-size-caption); color: var(--color-fg-muted); padding: 0; margin-bottom: 4px; }
+.jl-form label.lbl { display: grid; gap: 4px; justify-self: start; }
+.jl-form input { font: inherit; color: var(--color-fg); background: var(--color-bg); border: 1px solid var(--cds-border); border-radius: var(--cds-radius); }
+.jl-form input:focus-visible, .jl-form button:focus-visible, .jl-chips button:focus-visible { outline: 2px solid var(--hot); outline-offset: 2px; }
+.jl-form input[type=date], .jl-form input[type=password] { font-size: 1.25rem; padding: var(--cds-pad-sm) var(--cds-pad-md); min-height: 3rem; }
+.jl-nums { display: grid; grid-template-columns: repeat(6, minmax(0, 4.25rem)); gap: var(--cds-gap-sm); }
+.jl-nums input { width: 100%; box-sizing: border-box; aspect-ratio: 1; border-radius: 50%; text-align: center; font-family: var(--font-anthropic-serif); font-size: 1.6rem; padding: 0; }
+.jl-nums input.bad { border-color: var(--color-bad); border-width: 2px; }
+.jl-row { display: flex; flex-wrap: wrap; gap: var(--cds-gap-md); align-items: end; }
+.jl-btn { font: inherit; font-size: 1.125rem; font-weight: 600; padding: var(--cds-pad-sm) var(--cds-pad-lg); min-height: 3rem; border-radius: var(--cds-radius); border: 1px solid var(--color-fg); background: var(--color-fg); color: var(--color-bg); cursor: pointer; }
+.jl-btn[disabled] { opacity: .55; cursor: progress; }
+.jl-link { font: inherit; font-size: var(--cds-font-size-caption); background: none; border: 0; padding: 0; color: var(--color-fg-muted); text-decoration: underline; cursor: pointer; }
+.jl-check { display: flex; gap: 6px; align-items: center; font-size: var(--cds-font-size-caption); color: var(--color-fg-muted); min-height: 3rem; }
+.jl-check input { width: 1.2rem; height: 1.2rem; }
+.jl-msg { margin: 0; font-size: var(--cds-font-size-body); line-height: 1.5; min-height: 1.5em; }
+.jl-msg.ok { color: var(--color-ok); }
+.jl-msg.err { color: var(--color-bad); }
+.jl-msg.ask { color: var(--color-warn); }
+.jl-entered summary { cursor: pointer; font-size: var(--cds-font-size-caption); color: var(--color-fg-muted); padding-block: var(--cds-pad-xs); }
+.jl-entered ul { list-style: none; margin: var(--cds-gap-sm) 0 0; padding: 0; display: grid; gap: var(--cds-gap-xs); }
+.jl-entered li { display: flex; flex-wrap: wrap; gap: var(--cds-gap-md); align-items: center; justify-content: space-between; border-bottom: 1px solid var(--color-border-line); padding-block: var(--cds-pad-xs); font-size: var(--cds-font-size-body); }
+.jl-entered li .d { color: var(--color-fg-muted); font-size: var(--cds-font-size-caption); }
+.jl-entered li .rm { font: inherit; font-size: var(--cds-font-size-caption); border: 1px solid var(--color-border-line); background: transparent; color: var(--color-fg); border-radius: 999px; padding: 2px var(--cds-pad-md); cursor: pointer; min-height: 2rem; }
+.jl-entered li .rm.armed { color: var(--color-bad); border-color: currentColor; }
 @media (prefers-reduced-motion: no-preference) {
   .jl-ball.in { animation: jl-pop var(--cds-dur-slow) var(--cds-ease-out) both; }
   @keyframes jl-pop { from { transform: scale(.85); opacity: 0; } to { transform: none; opacity: 1; } }
@@ -166,6 +214,38 @@ window.dash = (() => {
     <h1>Jerry's Lotto 47 board</h1>
     <p class="jl-takeaway dash-skeleton" id="takeaway" data-source="summary"></p>
   </header>
+
+  <section class="jl-card jl-entry" id="entry" aria-labelledby="entry-h">
+    <h2 id="entry-h">Add a drawing</h2>
+    <p class="jl-entry-status" id="e-status">Checking for drawings to add…</p>
+    <div class="jl-chips" id="e-missing" role="group" aria-label="Drawings still to add"></div>
+    <form class="jl-form" id="e-form" novalidate hidden>
+      <label class="lbl" for="e-date">Drawing date<input type="date" id="e-date" required></label>
+      <fieldset>
+        <legend>The six numbers drawn, in any order</legend>
+        <p class="jl-note" style="margin-bottom:6px">After a one-digit number like 3, press the space bar to go to the next ball. Two-digit numbers move on by themselves.</p>
+        <div class="jl-nums" id="e-nums">
+          <input type="text" inputmode="numeric" pattern="[0-9]*" maxlength="2" autocomplete="off" aria-label="Number 1">
+          <input type="text" inputmode="numeric" pattern="[0-9]*" maxlength="2" autocomplete="off" aria-label="Number 2">
+          <input type="text" inputmode="numeric" pattern="[0-9]*" maxlength="2" autocomplete="off" aria-label="Number 3">
+          <input type="text" inputmode="numeric" pattern="[0-9]*" maxlength="2" autocomplete="off" aria-label="Number 4">
+          <input type="text" inputmode="numeric" pattern="[0-9]*" maxlength="2" autocomplete="off" aria-label="Number 5">
+          <input type="text" inputmode="numeric" pattern="[0-9]*" maxlength="2" autocomplete="off" aria-label="Number 6">
+        </div>
+      </fieldset>
+      <div class="jl-row" id="e-pin-row">
+        <label class="lbl" for="e-pin">PIN<input type="password" id="e-pin" inputmode="numeric" autocomplete="current-password" size="8"></label>
+        <label class="jl-check"><input type="checkbox" id="e-remember" checked> Remember the PIN on this computer</label>
+      </div>
+      <p class="jl-note" id="e-pin-saved" hidden>PIN remembered on this computer. <button type="button" class="jl-link" id="e-forget">Forget it</button></p>
+      <div class="jl-row"><button type="submit" class="jl-btn" id="e-save">Save drawing</button></div>
+      <p class="jl-msg" id="e-msg" role="status" aria-live="polite"></p>
+    </form>
+    <details class="jl-entered" id="e-entered" hidden>
+      <summary id="e-entered-sum">Drawings typed in here</summary>
+      <ul id="e-list"></ul>
+    </details>
+  </section>
 
   <section class="jl-tiles" id="tiles" aria-label="Headline figures">
     <div class="jl-tile">
@@ -298,7 +378,7 @@ window.dash = (() => {
     <h2>About these numbers</h2>
     <ul>
       <li class="dash-skeleton" id="coverage" data-source="summary"></li>
-      <li>Results were gathered from public results sites (Lottery Post, Lottery USA, Lottery Extreme, LottoNumbers) and checked against each other where they overlap. Check any single draw against the Michigan Lottery before relying on it.</li>
+      <li>Results up to November 4, 2026 were gathered from public results sites (Lottery Post, Lottery USA, Lottery Extreme, LottoNumbers) and checked against each other where they overlap. Later drawings are typed in by hand with the box at the top. Check any single draw against the Michigan Lottery before relying on it.</li>
       <li>The March 1, 2026 dividing line is Jerry's suspected machine change. No public notice of an equipment change was found.</li>
       <li>"1 in N" figures say how rarely a fair, perfectly random draw would produce a result at least that lopsided. A small sample can look lopsided by chance, so these are clues, not proof.</li>
       <li>Matching more numbers on average still leaves the jackpot a long shot. A ticket needs all six of 47 numbers, about 1 in 10.7 million.</li>
@@ -719,7 +799,204 @@ dash.calc('summary', {
 })();
 </script>
 
-<p class="jl-foot">Updated automatically after each Wednesday and Saturday drawing. Results come from public lottery results sites; the Michigan Lottery's own results are the official record.</p>
+<script>
+/* Entry card: Jerry types in each new drawing; it is saved through /api/draws and the whole board recalculates. */
+(() => {
+  const q = (s) => document.querySelector(s);
+  const form = q('#e-form'), status = q('#e-status'), chips = q('#e-missing'), msg = q('#e-msg');
+  const dateEl = q('#e-date'), boxes = [...document.querySelectorAll('#e-nums input')];
+  const pinEl = q('#e-pin'), pinRow = q('#e-pin-row'), pinSaved = q('#e-pin-saved'), remember = q('#e-remember');
+  const saveBtn = q('#e-save'), entered = q('#e-entered'), enteredSum = q('#e-entered-sum'), list = q('#e-list');
+  const PIN_KEY = 'jl-entry-pin';
+  const keep = {
+    get: () => { try { return localStorage.getItem(PIN_KEY) || ''; } catch { return ''; } },
+    set: (v) => { try { localStorage.setItem(PIN_KEY, v); return true; } catch { return false; } },
+    clear: () => { try { localStorage.removeItem(PIN_KEY); } catch { /* ignore */ } },
+  };
+  let pin = keep.get(), pinStored = !!pin;
+  let autoDate = true;        // the date box follows the next drawing to add until Jerry picks a date himself
+  let pendingReplace = null;  // "date|numbers" Jerry was warned would replace a drawing already on the board
+  let busy = false;
+
+  const iso = (d) => d.toISOString().slice(0, 10);
+  const today = () => { const d = new Date(); return new Date(Date.UTC(d.getFullYear(), d.getMonth(), d.getDate())); };
+  const fmt = (s, year) => new Date(s + 'T00:00:00Z').toLocaleDateString('en-US', { timeZone: 'UTC', weekday: 'short', month: 'short', day: 'numeric', ...(year ? { year: 'numeric' } : {}) });
+  const nums6 = (d) => [d.n1, d.n2, d.n3, d.n4, d.n5, d.n6].map(Number).sort((a, b) => a - b);
+  const say = (text, kind) => { msg.textContent = text; msg.className = 'jl-msg' + (kind ? ' ' + kind : ''); };
+  const onBoard = (date) => { const D = dash.data('draws'); return D.status === 'ok' ? D.data.find((d) => d.date === date) : null; };
+
+  function showPin() {
+    pinRow.hidden = !!pin;
+    pinSaved.hidden = !pin;
+    pinSaved.firstChild.textContent = pinStored ? 'PIN remembered on this computer. ' : 'PIN kept until this page is closed. ';
+  }
+
+  // Wednesday and Saturday drawings after the last draw in draws.json, up to today, not on the board yet.
+  // Tonight's drawing only counts after 8 pm.
+  function missingDates(E, have) {
+    if (!E.baseLast) return [];
+    const out = [], t = today(), late = new Date().getHours() >= 20;
+    for (let d = new Date(Date.parse(E.baseLast + 'T00:00:00Z') + 864e5); d <= t; d = new Date(d.getTime() + 864e5)) {
+      const wd = d.getUTCDay(), s = iso(d);
+      if ((wd === 3 || wd === 6) && !(s === iso(t) && !late) && !have.has(s)) out.push(s);
+    }
+    return out;
+  }
+
+  function render() {
+    const E = dash.entry(), D = dash.data('draws');
+    if (D.status === 'loading' || E.status === 'loading') return;
+    const off = (text) => { status.textContent = text; form.hidden = true; chips.replaceChildren(); entered.hidden = true; };
+    if (D.status !== 'ok' || E.status !== 'ok') return off('Adding drawings is not available right now. Try reloading the page in a minute.');
+    if (!E.ready) return off('Adding drawings is not switched on yet. Mike needs to set the PIN.');
+    form.hidden = false;
+    showPin();
+
+    const have = new Set(D.data.map((d) => d.date));
+    const miss = missingDates(E, have);
+    const last = [...have].sort().pop();
+    status.replaceChildren();
+    const b = (t) => { const el = document.createElement('b'); el.textContent = t; status.appendChild(el); };
+    const tx = (t) => status.appendChild(document.createTextNode(t));
+    if (miss.length) { b(miss.length === 1 ? '1 drawing' : miss.length + ' drawings'); tx(' still to add. Pick the date, type its six numbers, and press Save.'); }
+    else { tx('The board has every drawing through '); b(fmt(last, true)); tx('. Add the next one after it is drawn.'); }
+
+    dateEl.max = iso(today());
+    dateEl.min = '2025-01-01';
+    if (autoDate || !dateEl.value) dateEl.value = miss[0] || '';
+    chips.replaceChildren(...miss.slice(0, 12).map((s) => {
+      const c = document.createElement('button');
+      c.type = 'button'; c.dataset.date = s; c.textContent = fmt(s);
+      c.setAttribute('aria-pressed', String(s === dateEl.value));
+      return c;
+    }));
+
+    const rows = [...E.rows].sort((x, y) => y.date.localeCompare(x.date));
+    entered.hidden = !rows.length;
+    enteredSum.textContent = rows.length === 1 ? '1 drawing typed in here (to fix or remove)' : rows.length + ' drawings typed in here (to fix or remove)';
+    list.replaceChildren(...rows.map((r) => {
+      const li = document.createElement('li');
+      const left = document.createElement('span');
+      const d = document.createElement('span'); d.className = 'd'; d.textContent = fmt(r.date, true) + '  ';
+      left.append(d, document.createTextNode(nums6(r).join('  ')));
+      const rm = document.createElement('button'); rm.type = 'button'; rm.className = 'rm'; rm.dataset.date = r.date; rm.textContent = 'Remove';
+      li.append(left, rm);
+      return li;
+    }));
+  }
+
+  const pickDate = (s) => {
+    dateEl.value = s; autoDate = false; pendingReplace = null;
+    chips.querySelectorAll('button').forEach((c) => c.setAttribute('aria-pressed', String(c.dataset.date === s)));
+    const ex = s && onBoard(s);
+    say(ex ? fmt(s, true) + ' is already on the board as ' + nums6(ex).join(' ') + '. Saving will replace it.' : '', ex ? 'ask' : '');
+  };
+  chips.addEventListener('click', (e) => { const c = e.target.closest('button'); if (!c) return; pickDate(c.dataset.date); boxes[0].focus(); });
+  dateEl.addEventListener('change', () => pickDate(dateEl.value));
+
+  boxes.forEach((bx, i) => {
+    bx.addEventListener('input', () => {
+      bx.value = bx.value.replace(/\D/g, '').slice(0, 2);
+      bx.classList.remove('bad'); pendingReplace = null;
+      const v = bx.value;
+      // Move on after two digits, or after one digit that cannot start a number up to 47
+      if (i < 5 && (v.length === 2 || (v.length === 1 && v >= '5'))) { boxes[i + 1].focus(); boxes[i + 1].select(); }
+    });
+    bx.addEventListener('keydown', (e) => {
+      if (e.key === 'Backspace' && !bx.value && i > 0) { e.preventDefault(); boxes[i - 1].focus(); }
+      else if (e.key === ' ' || e.key === ',') { e.preventDefault(); if (bx.value && i < 5) { boxes[i + 1].focus(); boxes[i + 1].select(); } }
+    });
+    bx.addEventListener('paste', (e) => {
+      const found = ((e.clipboardData || window.clipboardData).getData('text').match(/\d+/g) || []);
+      if (found.length < 2) return;
+      e.preventDefault();
+      found.slice(0, 6 - i).forEach((n, k) => { boxes[i + k].value = n.slice(0, 2); boxes[i + k].classList.remove('bad'); });
+      boxes[Math.min(5, i + found.length)].focus();
+    });
+  });
+
+  q('#e-forget').addEventListener('click', () => { pin = ''; pinStored = false; keep.clear(); pinEl.value = ''; showPin(); pinEl.focus(); });
+
+  const wrongPin = () => { pin = ''; pinStored = false; keep.clear(); pinEl.value = ''; showPin(); pinEl.focus(); };
+  const usedPin = (p) => { if (!pin) { pin = p; pinStored = remember.checked && keep.set(p); } showPin(); };
+
+  form.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    if (busy) return;
+    boxes.forEach((bx) => bx.classList.remove('bad'));
+    const date = dateEl.value;
+    if (!date) { dateEl.focus(); return say('Please pick the date of the drawing.', 'err'); }
+    const wd = new Date(date + 'T00:00:00Z').getUTCDay();
+    if (wd !== 3 && wd !== 6) { dateEl.focus(); return say('Lotto 47 is drawn on Wednesdays and Saturdays. ' + fmt(date) + ' is neither.', 'err'); }
+    if (date > iso(today())) { dateEl.focus(); return say('That drawing has not happened yet.', 'err'); }
+    const raw = boxes.map((bx) => bx.value.trim());
+    const empty = raw.findIndex((v) => !v);
+    if (empty >= 0) { boxes[empty].classList.add('bad'); boxes[empty].focus(); return say('Please fill in all six numbers.', 'err'); }
+    const nums = raw.map(Number);
+    const out = nums.findIndex((n) => n < 1 || n > 47);
+    if (out >= 0) { boxes[out].classList.add('bad'); boxes[out].focus(); return say('Each number must be from 1 to 47.', 'err'); }
+    const dupes = nums.map((n, i) => nums.indexOf(n) !== i || nums.lastIndexOf(n) !== i ? i : -1).filter((i) => i >= 0);
+    if (dupes.length) { dupes.forEach((i) => boxes[i].classList.add('bad')); boxes[dupes[0]].focus(); return say(nums[dupes[0]] + ' is in there twice. Each of the six numbers is different.', 'err'); }
+    const sorted = [...nums].sort((a, b) => a - b);
+    const pinNow = pin || pinEl.value.trim();
+    if (!pinNow) { pinEl.focus(); return say('Please type the PIN.', 'err'); }
+
+    const ex = onBoard(date);
+    if (ex) {
+      const was = nums6(ex).join(' ');
+      if (was === sorted.join(' ')) return say(fmt(date, true) + ' is already on the board with those numbers. Nothing to change.', 'ok');
+      const k = date + '|' + sorted.join(' ');
+      if (pendingReplace !== k) { pendingReplace = k; return say(fmt(date, true) + ' is already on the board as ' + was + '. Press Save again to replace it with ' + sorted.join(' ') + '.', 'ask'); }
+    }
+
+    busy = true; saveBtn.disabled = true; say('Saving…');
+    try {
+      const r = await fetch('/api/draws', { method: 'POST', headers: { 'content-type': 'application/json', 'x-entry-pin': pinNow }, body: JSON.stringify({ date, numbers: sorted }) });
+      const j = await r.json().catch(() => ({}));
+      if (!r.ok) { if (j.pin === 'wrong') wrongPin(); return say(j.error || 'That did not save. Please try again.', 'err'); }
+      usedPin(pinNow);
+      pendingReplace = null; autoDate = true;
+      boxes.forEach((bx) => { bx.value = ''; });
+      await dash.reload();
+      say('Saved ' + fmt(date, true) + ': ' + sorted.join(' ') + '. The board below is updated.', 'ok');
+      if (dateEl.value) boxes[0].focus();
+    } catch (err) {
+      console.error(err);
+      say('Could not reach the board to save. Check the internet connection and try again.', 'err');
+    } finally { busy = false; saveBtn.disabled = false; }
+  });
+
+  list.addEventListener('click', async (e) => {
+    const btn = e.target.closest('button.rm');
+    if (!btn || busy) return;
+    const date = btn.dataset.date;
+    if (!btn.classList.contains('armed')) {
+      list.querySelectorAll('.rm.armed').forEach((x) => { x.classList.remove('armed'); x.textContent = 'Remove'; });
+      btn.classList.add('armed'); btn.textContent = 'Press again to remove';
+      return;
+    }
+    const pinNow = pin || pinEl.value.trim();
+    if (!pinNow) { pinEl.focus(); return say('Type the PIN above first, then press Remove again.', 'err'); }
+    busy = true; btn.disabled = true;
+    try {
+      const r = await fetch('/api/draws/' + date, { method: 'DELETE', headers: { 'x-entry-pin': pinNow } });
+      const j = await r.json().catch(() => ({}));
+      if (!r.ok) { if (j.pin === 'wrong') wrongPin(); return say(j.error || 'That did not remove. Please try again.', 'err'); }
+      usedPin(pinNow);
+      const hadOriginal = dash.entry().base.has(date);
+      await dash.reload();
+      say('Removed the ' + fmt(date, true) + ' entry.' + (hadOriginal ? ' The numbers from the original records are back for that date.' : ''), 'ok');
+    } catch (err) {
+      console.error(err);
+      say('Could not reach the board. Check the internet connection and try again.', 'err');
+    } finally { busy = false; btn.disabled = false; }
+  });
+
+  dash.onData(render);
+})();
+</script>
+
+<p class="jl-foot">New drawings are added with the box at the top of the page. The Michigan Lottery's own results are the official record.</p>
 </main>
 </body>
 </html>
