@@ -92,7 +92,7 @@ window.dash = (() => {
   load();
   let w = 0, t;
   addEventListener('resize', () => { clearTimeout(t); t = setTimeout(() => { if (innerWidth !== w) { w = innerWidth; fire(); } }, 150); });
-  let params = { from: '2026-07-01', to: null };
+  let params = { from: '2026-03-01', to: null };
   return {
     params: () => ({ ...params }),
     setParams: (p) => { params = { ...params, ...p }; fire(); },
@@ -148,7 +148,7 @@ window.dash = (() => {
 .jl-six figcaption { font-size: var(--cds-font-size-caption); color: var(--color-fg-muted); }
 .jl-pairs { margin: 0; padding: 0; list-style: none; display: grid; gap: var(--cds-gap-xs); font-size: var(--cds-font-size-body); }
 .jl-pairs li { display: flex; justify-content: space-between; gap: var(--cds-gap-md); border-bottom: 1px solid var(--color-border-line); padding-block: var(--cds-pad-xs); }
-.jl-pairs li span:last-child { color: var(--color-fg-muted); font-size: var(--cds-font-size-caption); align-self: center; }
+.jl-pairs li > span:last-child { color: var(--color-fg-muted); font-size: var(--cds-font-size-caption); align-self: center; }
 .jl-ball { aspect-ratio: 1; max-width: 100%; border-radius: 50%; display: grid; place-content: center; text-align: center; border: 1px solid var(--color-border-line); line-height: 1.05; }
 .jl-ball .n { font-family: var(--font-anthropic-serif); font-size: var(--cds-font-size-heading); }
 .jl-ball .c::after { content: '×'; }
@@ -203,6 +203,40 @@ window.dash = (() => {
 .jl-entered li .d { color: var(--color-fg-muted); font-size: var(--cds-font-size-caption); }
 .jl-entered li .rm { font: inherit; font-size: var(--cds-font-size-caption); border: 1px solid var(--color-border-line); background: transparent; color: var(--color-fg); border-radius: 999px; padding: 2px var(--cds-pad-md); cursor: pointer; min-height: 2rem; }
 .jl-entered li .rm.armed { color: var(--color-bad); border-color: currentColor; }
+/* Since-March board additions */
+.jl-takeaway b { font-weight: 600; }
+.jl-latest .jl-six { margin-top: 2px; }
+.jl-six span.mine, .jl-ball.mine, .jl-drawn span.mine { outline: 3px solid var(--color-fg); outline-offset: 2px; }
+.jl-ball.mine { font-weight: 600; }
+.jl-mine-show { display: grid; gap: var(--cds-gap-md); }
+.jl-matchbar { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: var(--cds-gap-sm); }
+.jl-mb { border: 1px solid var(--color-border-line); border-radius: var(--cds-radius); padding: var(--cds-pad-sm) var(--cds-pad-md); display: grid; gap: 2px; }
+.jl-mb .jl-big { font-size: var(--cds-font-size-title); }
+.jl-mb.good { border-color: color-mix(in srgb, var(--hot) 45%, var(--color-border-line)); background: color-mix(in srgb, var(--hot) 8%, var(--color-panel)); }
+.jl-table td.up { color: var(--color-ok); font-weight: 600; }
+.jl-table td.down { color: var(--color-fg-muted); }
+#gap-table td span, .jl-pair span { width: 2.1rem; height: 2.1rem; font-size: var(--cds-font-size-body); border-radius: 50%; display: inline-grid; place-content: center; font-family: var(--font-anthropic-serif); background: color-mix(in srgb, var(--hot) 14%, var(--color-panel)); border: 1px solid var(--color-border-line); }
+#gap-table td span.mine, .jl-pair span.mine { outline: 3px solid var(--color-fg); outline-offset: 2px; }
+#gap-table td { vertical-align: middle; font-size: var(--cds-font-size-body); }
+.jl-pair { display: inline-flex; gap: var(--cds-gap-sm); align-items: center; }
+.jl-drawn > div { display: flex; gap: 6px; flex-wrap: wrap; }
+.jl-drawn span { min-width: 1.6rem; text-align: center; border-radius: 6px; padding: 0 2px; font-size: var(--cds-font-size-body); }
+.jl-drawn span.mine { outline-width: 2px; outline-offset: 1px; font-weight: 700; }
+.jl-table td { font-size: var(--cds-font-size-body); }
+.jl-shape { display: grid; gap: var(--cds-gap-md); }
+.jl-card { align-content: start; }
+.jl-shape > div { display: grid; gap: 2px; }
+.jl-shape .jl-big { font-size: var(--cds-font-size-title); }
+.jl-gridbox { overflow-x: auto; border: 1px solid var(--color-border-line); border-radius: var(--cds-radius); }
+.jl-hits { border-collapse: collapse; font-size: .75rem; min-width: 100%; }
+.jl-hits th, .jl-hits td { padding: 0; text-align: center; height: 1.45rem; min-width: 1.15rem; border-bottom: 1px solid var(--cds-chart-grid); }
+.jl-hits thead th { position: sticky; top: 0; background: var(--color-panel); color: var(--color-fg-muted); font-weight: 500; padding-block: 4px; }
+.jl-hits th.d { text-align: left; padding-inline: 8px; white-space: nowrap; color: var(--color-fg-muted); font-weight: 500; position: sticky; left: 0; background: var(--color-panel); }
+.jl-hits td:nth-child(5n+1), .jl-hits th:nth-child(5n+1):not(.d) { border-right: 1px solid var(--cds-chart-grid); }
+.jl-hits .mine { background: color-mix(in srgb, var(--color-fg) 9%, var(--color-panel)); }
+.jl-hits thead th.mine { color: var(--color-fg); font-weight: 700; }
+.jl-hits td i { display: inline-block; width: .8rem; height: .8rem; border-radius: 50%; background: var(--hot); vertical-align: middle; }
+@media (max-width: 560px) { .jl-matchbar { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
 @media (prefers-reduced-motion: no-preference) {
   .jl-ball.in { animation: jl-pop var(--cds-dur-slow) var(--cds-ease-out) both; }
   @keyframes jl-pop { from { transform: scale(.85); opacity: 0; } to { transform: none; opacity: 1; } }
@@ -212,8 +246,27 @@ window.dash = (() => {
 <div class="jl">
   <header class="jl-head" id="top">
     <h1>Jerry's Lotto 47 board</h1>
-    <p class="jl-takeaway dash-skeleton" id="takeaway" data-source="summary"></p>
+    <p class="jl-takeaway">Everything below counts from <b>March 1, 2026</b>, the suspected machine change, unless you pick other dates.</p>
   </header>
+
+  <section class="jl-tiles" id="tiles" aria-label="Latest drawing">
+    <div class="jl-tile jl-latest">
+      <span class="jl-label">Latest drawing</span>
+      <span class="jl-sub2 dash-skeleton" id="t-last-date">—</span>
+      <div class="jl-six" id="t-last-balls"></div>
+      <span class="jl-sub" id="t-last-mine"></span>
+    </div>
+    <div class="jl-tile">
+      <span class="jl-label">Next drawing</span>
+      <span class="jl-sub2 dash-skeleton" id="t-next">—</span>
+      <span class="jl-sub">Lotto 47 is drawn every Wednesday and Saturday evening.</span>
+    </div>
+    <div class="jl-tile">
+      <span class="jl-label">Drawings since March 1, 2026</span>
+      <span class="jl-big dash-skeleton" id="t-since">—</span>
+      <span class="jl-sub" id="t-since-sub"></span>
+    </div>
+  </section>
 
   <section class="jl-card jl-entry" id="entry" aria-labelledby="entry-h">
     <h2 id="entry-h">Add a drawing</h2>
@@ -247,128 +300,110 @@ window.dash = (() => {
     </details>
   </section>
 
-  <section class="jl-tiles" id="tiles" aria-label="Headline figures">
-    <div class="jl-tile">
-      <span class="jl-label">Hot-six picks, before March 2026</span>
-      <span class="jl-big dash-skeleton" data-source="summary" data-field="bt_before_avg">—</span>
-      <span class="jl-sub">average numbers matched per draw (<span data-source="summary" data-field="bt_before_n">—</span> draws)</span>
-      <span class="jl-pill dash-skeleton" id="pill-before" data-source="summary">—</span>
-    </div>
-    <div class="jl-tile">
-      <span class="jl-label">Hot-six picks, since March 2026</span>
-      <span class="jl-big dash-skeleton" data-source="summary" data-field="bt_since_avg">—</span>
-      <span class="jl-sub">average numbers matched per draw (<span data-source="summary" data-field="bt_since_n">—</span> draws)</span>
-      <span class="jl-pill dash-skeleton" id="pill-since" data-source="summary">—</span>
-    </div>
-    <div class="jl-tile">
-      <span class="jl-label">Random picks, for comparison</span>
-      <span class="jl-big dash-skeleton" data-source="summary" data-field="random_avg">—</span>
-      <span class="jl-sub">average matched per draw by six numbers chosen at random, the long-run expectation for any ticket</span>
-    </div>
-    <div class="jl-tile">
-      <span class="jl-label">Draws analyzed</span>
-      <span class="jl-big dash-skeleton" data-source="summary" data-field="draws">—</span>
-      <span class="jl-sub"><span data-source="summary" data-field="first_date">—</span> to <span data-source="summary" data-field="last_date">—</span>, Wednesdays and Saturdays</span>
-    </div>
-  </section>
-
-  <section class="jl-card" id="switch">
-    <h2>Did the hot numbers stop working after March?</h2>
-    <p class="jl-note">Before each draw, take the six numbers drawn most often up to that point, then count how many of them came up. The line is the average over the last 20 draws. The dashed line is what random picks average.</p>
-    <div class="jl-chart" id="bt-chart" data-source="backtest"></div>
-    <p class="jl-note dash-skeleton" id="switch-note" data-source="summary"></p>
-  </section>
-
   <section class="jl-card" id="range">
-    <h2>Pick your own dates</h2>
-    <p class="jl-note">Choose a stretch of draws with a quick button or the date boxes. Everything in this box, and the list of every draw further down, counts only the draws inside those dates.</p>
+    <h2>Which drawings to count</h2>
+    <p class="jl-note">Everything from here down counts only the drawings between these dates, except the 12-drawing chart and the "longest since" list, which always use the newest drawings.</p>
     <div class="jl-range-ctl">
       <div class="jl-seg" role="group" aria-label="Quick date ranges" id="presets">
-        <button type="button" id="pr-jul" data-preset="jul" aria-pressed="false">Since July 1</button>
-        <button type="button" id="pr-3m" data-preset="3m" aria-pressed="false">Last 3 months</button>
-        <button type="button" id="pr-since" data-preset="since" aria-pressed="false">Since March</button>
-        <button type="button" id="pr-before" data-preset="before" aria-pressed="false">Before March</button>
-        <button type="button" id="pr-all" data-preset="all" aria-pressed="false">All draws</button>
+        <button type="button" data-preset="since" aria-pressed="false">Since March</button>
+        <button type="button" data-preset="3m" aria-pressed="false">Last 3 months</button>
+        <button type="button" data-preset="last20" aria-pressed="false">Last 20 drawings</button>
+        <button type="button" data-preset="all" aria-pressed="false">All drawings</button>
       </div>
       <label for="r-from">From<input type="date" id="r-from" min="2000-01-01" max="2099-12-31"></label>
       <label for="r-to">To<input type="date" id="r-to" min="2000-01-01" max="2099-12-31"></label>
     </div>
-    <p class="jl-range-sum dash-skeleton" id="r-summary" data-source="draws"></p>
+    <p class="jl-range-sum dash-skeleton" id="r-summary"></p>
+  </section>
 
-    <div class="jl-tiles" id="r-tiles" data-source="draws backtest">
-      <div class="jl-tile">
-        <span class="jl-label">Draws in these dates</span>
-        <span class="jl-big dash-skeleton" id="r-n">—</span>
-        <span class="jl-sub" id="r-n-sub"></span>
+  <section class="jl-card" id="mine">
+    <h2>Your numbers</h2>
+    <form class="jl-form" id="m-form" novalidate>
+      <p class="jl-note">Type the six numbers you play and press Save. They are kept on this computer and marked with a ring everywhere on the board.</p>
+      <div class="jl-nums" id="m-nums">
+        <input type="text" inputmode="numeric" pattern="[0-9]*" maxlength="2" autocomplete="off" aria-label="Your number 1">
+        <input type="text" inputmode="numeric" pattern="[0-9]*" maxlength="2" autocomplete="off" aria-label="Your number 2">
+        <input type="text" inputmode="numeric" pattern="[0-9]*" maxlength="2" autocomplete="off" aria-label="Your number 3">
+        <input type="text" inputmode="numeric" pattern="[0-9]*" maxlength="2" autocomplete="off" aria-label="Your number 4">
+        <input type="text" inputmode="numeric" pattern="[0-9]*" maxlength="2" autocomplete="off" aria-label="Your number 5">
+        <input type="text" inputmode="numeric" pattern="[0-9]*" maxlength="2" autocomplete="off" aria-label="Your number 6">
       </div>
-      <div class="jl-tile">
-        <span class="jl-label">Hot-six picks in these dates</span>
-        <span class="jl-big dash-skeleton" id="r-bt">—</span>
-        <span class="jl-sub" id="r-bt-sub"></span>
-        <span class="jl-pill" id="r-bt-pill" hidden></span>
+      <div class="jl-row"><button type="submit" class="jl-btn">Save my numbers</button><button type="button" class="jl-link" id="m-cancel" hidden>Cancel</button></div>
+      <p class="jl-msg" id="m-msg" role="status" aria-live="polite"></p>
+    </form>
+    <div id="m-show" class="jl-mine-show" hidden>
+      <div class="jl-row"><div class="jl-six" id="m-balls"></div><button type="button" class="jl-link" id="m-change">Change my numbers</button></div>
+      <p class="jl-range-sum" id="m-sum"></p>
+      <div class="jl-matchbar" id="m-dist" aria-label="Drawings by how many of your numbers matched"></div>
+      <div class="jl-tablebox">
+        <table class="jl-table" id="m-table">
+          <thead><tr><th>Your number</th><th class="num">Times drawn</th><th class="num">Even share</th><th>Last drawn</th><th class="num">Drawings since</th></tr></thead>
+          <tbody></tbody>
+        </table>
       </div>
-      <div class="jl-tile">
-        <span class="jl-label">Average total of the six numbers</span>
-        <span class="jl-big dash-skeleton" id="r-sum">—</span>
-        <span class="jl-sub">A random draw averages 144.</span>
-      </div>
-      <div class="jl-tile">
-        <span class="jl-label">Most common odd / even split</span>
-        <span class="jl-big dash-skeleton" id="r-odd">—</span>
-        <span class="jl-sub" id="r-odd-sub"></span>
-      </div>
+      <p class="jl-note">Green means drawn more than an even share in these dates. "Drawings since" counts from the newest drawing.</p>
     </div>
+  </section>
 
-    <div class="jl-grid2" id="r-sixes" data-source="draws">
-      <div class="jl-tile">
-        <h3 class="jl-sub2">Hot six in these dates</h3>
-        <div class="jl-six" id="r-hot"></div>
-        <span class="jl-sub">Times drawn under each ball. Ties go to the number drawn most recently.</span>
-      </div>
-      <div class="jl-tile">
-        <h3 class="jl-sub2">Cold six in these dates</h3>
-        <div class="jl-six cold" id="r-cold"></div>
-        <span class="jl-sub">Drawn least often. Ties go to the number that has waited longest.</span>
-      </div>
-    </div>
+  <div class="jl-grid2" id="r-sixes">
+    <section class="jl-card">
+      <h2>Hot six</h2>
+      <div class="jl-six" id="r-hot"></div>
+      <p class="jl-note">Drawn most often in these dates; times drawn under each ball. Ties go to the number drawn most recently.</p>
+    </section>
+    <section class="jl-card">
+      <h2>Cold six</h2>
+      <div class="jl-six cold" id="r-cold"></div>
+      <p class="jl-note">Drawn least often in these dates. Ties go to the number that has waited longest.</p>
+    </section>
+  </div>
 
-    <h3 class="jl-sub2">How often each number came up</h3>
-    <p class="jl-note">Warmer balls came up more than an even share for these dates; dashed, cooler balls came up less.</p>
-    <div class="jl-balls" id="balls" data-source="draws"></div>
+  <section class="jl-card" id="board">
+    <h2>How often each number came up</h2>
+    <p class="jl-note">Each ball shows the number and how many times it was drawn. Warmer balls came up more than an even share for these dates; dashed, cooler balls came up less.</p>
+    <div class="jl-balls" id="balls"></div>
     <div class="jl-legend" id="balls-legend"></div>
+  </section>
 
-    <h3 class="jl-sub2">Numbers that came up together most</h3>
-    <ul class="jl-pairs" id="r-pairs" data-source="draws"></ul>
+  <section class="jl-card" id="recent">
+    <h2>The last 12 drawings at a glance</h2>
+    <p class="jl-note">One row per drawing, newest at the top; a dot means that number was drawn. Read down a column to see a number's streaks and gaps.</p>
+    <div class="jl-gridbox"><table class="jl-hits" id="hits"></table></div>
   </section>
 
   <div class="jl-grid2">
-    <section class="jl-card" id="hot-now">
-      <h2>Hot six right now</h2>
-      <p class="jl-note">The six most-drawn numbers across all draws here, which is the pick the method above would make for the next draw.</p>
-      <div class="jl-six dash-skeleton" id="six-all" data-source="summary" data-field="hot_all"></div>
-      <h2>Hot six since March</h2>
-      <p class="jl-note">The same, counting only draws since March 1, 2026.</p>
-      <div class="jl-six dash-skeleton" id="six-since" data-source="summary" data-field="hot_since"></div>
+    <section class="jl-card" id="pairs">
+      <h2>Numbers drawn together most</h2>
+      <ul class="jl-pairs" id="r-pairs"></ul>
     </section>
-    <section class="jl-card" id="gaps">
-      <h2>Longest since last drawn</h2>
-      <p class="jl-note">Draws since each number last came up. A long wait does not make a number more likely next time, but it is fun to watch.</p>
-      <div class="jl-tablebox" style="max-height: 18rem">
-        <table class="jl-table" id="gap-table" data-source="freq" data-row-key="number">
-          <thead><tr><th data-field="number">Number</th><th class="num" data-field="draws_since">Draws since</th><th data-field="last_date">Last drawn</th></tr></thead>
-          <tbody></tbody>
-        </table>
+    <section class="jl-card" id="shape">
+      <h2>What the drawings look like</h2>
+      <div class="jl-shape">
+        <div><span class="jl-label">Average total of the six</span><span class="jl-big" id="r-sum">—</span><span class="jl-sub">A random drawing averages 144.</span></div>
+        <div><span class="jl-label">Most common odd / even</span><span class="jl-big" id="r-odd">—</span><span class="jl-sub" id="r-odd-sub"></span></div>
+        <div><span class="jl-label">Most common low / high</span><span class="jl-big" id="r-low">—</span><span class="jl-sub" id="r-low-sub"></span></div>
       </div>
     </section>
   </div>
 
+  <section class="jl-card" id="gaps">
+    <h2>Longest since last drawn</h2>
+    <p class="jl-note">How many drawings in a row each number has missed, counting back from the newest drawing. A long wait does not make a number more likely next time, but it is fun to watch.</p>
+    <div class="jl-tablebox" style="max-height: 20rem">
+      <table class="jl-table" id="gap-table">
+        <thead><tr><th>Number</th><th class="num">Drawings missed</th><th>Last drawn</th></tr></thead>
+        <tbody></tbody>
+      </table>
+    </div>
+  </section>
+
   <section class="jl-card" id="history">
-    <h2>Every draw and how the hot six did</h2>
-    <p class="jl-note">Shows the draws in the dates you picked above. The hot six is worked out from all draws before each one. Draws since March 1, 2026 are marked on the left edge.</p>
+    <h2>Every drawing</h2>
+    <p class="jl-note">The drawings in the dates you picked, newest first. Type a number or a date to find it.</p>
     <input class="jl-search" id="search" type="search" placeholder="Find a date or number" aria-label="Find a date or number">
     <div class="jl-tablebox">
-      <table class="jl-table" id="bt-table" data-source="backtest" data-row-key="date">
-        <thead><tr><th data-field="date">Date</th><th data-field="numbers">Numbers drawn</th><th data-field="pick">Hot six going in</th><th class="num" data-field="matches">Matched</th></tr></thead>
+      <table class="jl-table" id="draw-table">
+        <thead><tr><th>Date</th><th>Numbers drawn</th><th class="num" id="draw-mine-h" hidden>Yours matched</th></tr></thead>
         <tbody></tbody>
       </table>
     </div>
@@ -377,11 +412,10 @@ window.dash = (() => {
   <section class="jl-card jl-about" id="about">
     <h2>About these numbers</h2>
     <ul>
-      <li class="dash-skeleton" id="coverage" data-source="summary"></li>
-      <li>Results up to November 4, 2026 were gathered from public results sites (Lottery Post, Lottery USA, Lottery Extreme, LottoNumbers) and checked against each other where they overlap. Later drawings are typed in by hand with the box at the top. Check any single draw against the Michigan Lottery before relying on it.</li>
-      <li>The March 1, 2026 dividing line is Jerry's suspected machine change. No public notice of an equipment change was found.</li>
-      <li>"1 in N" figures say how rarely a fair, perfectly random draw would produce a result at least that lopsided. A small sample can look lopsided by chance, so these are clues, not proof.</li>
-      <li>Matching more numbers on average still leaves the jackpot a long shot. A ticket needs all six of 47 numbers, about 1 in 10.7 million.</li>
+      <li id="coverage"></li>
+      <li>March 1, 2026 is when Jerry's results dropped off and the drawing machine is believed to have changed, so the board counts from there unless you pick other dates.</li>
+      <li>Results up to November 4, 2026 were gathered from public results sites (Lottery Post, Lottery USA, Lottery Extreme, LottoNumbers, lottery.net) and checked against each other. Later drawings are typed in with the box at the top. The Michigan Lottery's own results are the official record.</li>
+      <li>Every number has the same chance in each drawing. These counts show what has happened, not what will happen: over time, any six numbers match about 0.77 a drawing, and the jackpot needs all six of 47, about 1 in 10.7 million.</li>
     </ul>
   </section>
 </div>
@@ -389,415 +423,318 @@ window.dash = (() => {
 <script>
 const CUTOFF = '2026-03-01';
 
-dash.calc('freq', {
-  title: 'Times each number was drawn',
-  description: 'For each number 1 to 47: times drawn overall, before and since March 1, 2026, the even-share expectation, and draws since it last came up.',
-  inputs: ['draws'],
-  fn: (draws) => {
-    const cut = '2026-03-01';
-    const sorted = draws.map((d) => ({ date: String(d.date).slice(0, 10), n: [d.n1, d.n2, d.n3, d.n4, d.n5, d.n6].map(Number) }))
-      .sort((a, b) => a.date.localeCompare(b.date));
-    const before = sorted.filter((d) => d.date < cut).length;
-    const since = sorted.length - before;
-    const rows = [];
-    for (let k = 1; k <= 47; k++) {
-      let all = 0, b = 0, s = 0, last = null, lastIdx = -1;
-      sorted.forEach((d, i) => { if (d.n.includes(k)) { all++; if (d.date < cut) b++; else s++; last = d.date; lastIdx = i; } });
-      rows.push({ number: k, all, before: b, since: s,
-        expected_all: +(sorted.length * 6 / 47).toFixed(2), expected_before: +(before * 6 / 47).toFixed(2), expected_since: +(since * 6 / 47).toFixed(2),
-        last_date: last, draws_since: lastIdx < 0 ? sorted.length : sorted.length - 1 - lastIdx });
-    }
-    return rows;
-  },
-});
-
-dash.calc('backtest', {
-  title: 'Hot-six pick vs each draw',
-  description: 'Before each draw (from the 21st on), the six numbers drawn most often so far (ties go to the lower number), how many of them were drawn, and the average over the last 20 draws.',
-  inputs: ['draws'],
-  fn: (draws) => {
-    const cut = '2026-03-01', start = 20, win = 20;
-    const sorted = draws.map((d) => ({ date: String(d.date).slice(0, 10), n: [d.n1, d.n2, d.n3, d.n4, d.n5, d.n6].map(Number) }))
-      .sort((a, b) => a.date.localeCompare(b.date));
-    const count = new Array(48).fill(0);
-    const out = [];
-    sorted.forEach((d, i) => {
-      if (i >= start) {
-        const pick = Array.from({ length: 47 }, (_, j) => j + 1).sort((a, b) => count[b] - count[a] || a - b).slice(0, 6).sort((a, b) => a - b);
-        const hit = pick.filter((x) => d.n.includes(x));
-        out.push({ date: d.date, numbers: d.n.join(' '), pick: pick.join(' '), matched: hit.join(' '), matches: hit.length, period: d.date < cut ? 'Before March' : 'Since March' });
-        const recent = out.slice(-win);
-        out[out.length - 1].rolling_avg = recent.length === win ? +(recent.reduce((s, r) => s + r.matches, 0) / win).toFixed(3) : null;
-      }
-      d.n.forEach((x) => count[x]++);
+/* Shared behaviour for the six round number boxes (entry box and "Your numbers"):
+   move on after two digits or after 5-9, space moves on, backspace on an empty box goes back, paste fills across. */
+window.jlWireBalls = (boxes, onEdit) => {
+  boxes.forEach((bx, i) => {
+    bx.addEventListener('input', () => {
+      bx.value = bx.value.replace(/\D/g, '').slice(0, 2);
+      bx.classList.remove('bad'); if (onEdit) onEdit();
+      const v = bx.value;
+      if (i < 5 && (v.length === 2 || (v.length === 1 && v >= '5'))) { boxes[i + 1].focus(); boxes[i + 1].select(); }
     });
-    return out;
-  },
-});
+    bx.addEventListener('keydown', (e) => {
+      if (e.key === 'Backspace' && !bx.value && i > 0) { e.preventDefault(); boxes[i - 1].focus(); }
+      else if (e.key === ' ' || e.key === ',') { e.preventDefault(); if (bx.value && i < 5) { boxes[i + 1].focus(); boxes[i + 1].select(); } }
+    });
+    bx.addEventListener('paste', (e) => {
+      const found = ((e.clipboardData || window.clipboardData).getData('text').match(/\d+/g) || []);
+      if (found.length < 2) return;
+      e.preventDefault();
+      found.slice(0, 6 - i).forEach((n, k) => { boxes[i + k].value = n.slice(0, 2); boxes[i + k].classList.remove('bad'); });
+      boxes[Math.min(5, i + found.length)].focus();
+      if (onEdit) onEdit();
+    });
+  });
+};
 
-dash.calc('summary', {
-  title: 'Before vs since March',
-  description: 'Hot-six average matches before and since March 1, 2026 against the random average of 36/47, how lopsided each period\'s number counts were (chi-square, adjusted for six distinct numbers per draw), and the current hot six.',
-  inputs: ['draws', 'backtest', 'freq'],
-  fn: (draws, backtest, freq) => {
-    const cut = '2026-03-01';
-    // Upper regularized gamma Q(a, x), for chi-square p-values
-    const lgamma = (z) => { const c = [76.18009172947146, -86.50532032941677, 24.01409824083091, -1.231739572450155, 0.1208650973866179e-2, -0.5395239384953e-5]; let x = z, y = z, t = x + 5.5; t -= (x + 0.5) * Math.log(t); let s = 1.000000000190015; for (const ci of c) s += ci / ++y; return -t + Math.log(2.5066282746310005 * s / x); };
-    const gammaQ = (a, x) => {
-      if (x <= 0) return 1;
-      if (x < a + 1) { let ap = a, sum = 1 / a, del = sum; for (let n = 0; n < 500; n++) { ap++; del *= x / ap; sum += del; if (Math.abs(del) < Math.abs(sum) * 1e-12) break; } return 1 - sum * Math.exp(-x + a * Math.log(x) - lgamma(a)); }
-      let b = x + 1 - a, c = 1e300, d = 1 / b, h = d; for (let i = 1; i < 500; i++) { const an = -i * (i - a); b += 2; d = an * d + b; if (Math.abs(d) < 1e-300) d = 1e-300; c = b + an / c; if (Math.abs(c) < 1e-300) c = 1e-300; d = 1 / d; const del = d * c; h *= del; if (Math.abs(del - 1) < 1e-12) break; }
-      return Math.exp(-x + a * Math.log(x) - lgamma(a)) * h;
-    };
-    const erfc = (x) => { const t = 1 / (1 + 0.5 * Math.abs(x)); const r = t * Math.exp(-x * x - 1.26551223 + t * (1.00002368 + t * (0.37409196 + t * (0.09678418 + t * (-0.18628806 + t * (0.27886807 + t * (-1.13520398 + t * (1.48851587 + t * (-0.82215223 + t * 0.17087277))))))))); return x >= 0 ? r : 2 - r; };
-    const adj = 46 / 41; // six distinct numbers per draw shrink the spread; rescale to a 46-degree chi-square
-    const nAll = draws.length, nBefore = draws.filter((d) => String(d.date).slice(0, 10) < cut).length, nSince = nAll - nBefore;
-    const chi = (key, n) => freq.reduce((s, r) => { const e = n * 6 / 47; return s + (r[key] - e) ** 2 / e; }, 0) * adj;
-    const homog = freq.reduce((s, r) => { const t = r.before + r.since; return s + (t ? (r.before - t * nBefore / nAll) ** 2 / (t * nBefore / nAll) + (r.since - t * nSince / nAll) ** 2 / (t * nSince / nAll) : 0); }, 0) * adj;
-    const mu = 36 / 47, v = 6 * (6 / 47) * (41 / 47) * (41 / 46);
-    const side = (rows) => { const n = rows.length, m = rows.reduce((s, r) => s + r.matches, 0) / n, z = (m - mu) / Math.sqrt(v / n); return { n, m, p: 0.5 * erfc(z / Math.SQRT2) }; };
-    const b = side(backtest.filter((r) => r.date < cut)), s = side(backtest.filter((r) => r.date >= cut));
-    const oneIn = (p) => Math.max(1, Math.round(1 / p));
-    const top = (key) => [...freq].sort((x, y) => y[key] - x[key] || x.number - y.number).slice(0, 6).map((r) => r.number).sort((x, y) => x - y).join(' ');
-    const dates = draws.map((d) => String(d.date).slice(0, 10)).sort();
-    // Stretches with no draw for more than 4 days are missing data (draws are every Wed and Sat)
-    let gapFrom = null, gapTo = null, gaps = 0;
-    for (let i = 1; i < dates.length; i++) { if ((Date.parse(dates[i]) - Date.parse(dates[i - 1])) / 864e5 > 4) { gaps++; if (!gapFrom) gapFrom = dates[i - 1]; gapTo = dates[i]; } }
-    const pB = gammaQ(23, chi('before', nBefore) / 2), pS = gammaQ(23, chi('since', nSince) / 2), pH = gammaQ(23, homog / 2);
-    return [{
-      draws: nAll, first_date: dates[0], last_date: dates[dates.length - 1], draws_before: nBefore, draws_since: nSince,
-      random_avg: +mu.toFixed(2),
-      bt_before_avg: +b.m.toFixed(2), bt_before_n: b.n, bt_before_p: +b.p.toPrecision(2), bt_before_odds: oneIn(b.p),
-      bt_since_avg: +s.m.toFixed(2), bt_since_n: s.n, bt_since_p: +s.p.toPrecision(2), bt_since_odds: oneIn(s.p),
-      uneven_before_p: +pB.toPrecision(2), uneven_before_odds: oneIn(pB),
-      uneven_since_p: +pS.toPrecision(2), uneven_since_odds: oneIn(pS),
-      change_p: +pH.toPrecision(2), change_odds: oneIn(pH),
-      hot_all: top('all'), hot_since: top('since'),
-      gap_from: gapFrom, gap_to: gapTo, gap_found: Math.max(0, gaps - 1),
-    }];
-  },
-});
+/* Checks six typed numbers. Returns { nums } sorted, or { error, bad: [indexes] }. */
+window.jlCheckSix = (raw) => {
+  const empty = raw.findIndex((v) => !v);
+  if (empty >= 0) return { error: 'Please fill in all six numbers.', bad: [empty] };
+  const nums = raw.map(Number);
+  const out = nums.findIndex((n) => !Number.isInteger(n) || n < 1 || n > 47);
+  if (out >= 0) return { error: 'Each number must be from 1 to 47.', bad: [out] };
+  const dupes = nums.map((n, i) => (nums.indexOf(n) !== i || nums.lastIndexOf(n) !== i ? i : -1)).filter((i) => i >= 0);
+  if (dupes.length) return { error: nums[dupes[0]] + ' is in there twice. Each of the six numbers is different.', bad: dupes };
+  return { nums: [...nums].sort((a, b) => a - b) };
+};
 
 (() => {
-  const fmtDate = (s) => s ? d3.utcFormat('%b %-d, %Y')(new Date(s + 'T00:00:00Z')) : '—';
-  const fmtShort = (s) => d3.utcFormat('%b %-d')(new Date(s + 'T00:00:00Z'));
-  const fmtOdds = (n) => n >= 1000 ? 'rarer than 1 in 1,000' : '1 in ' + d3.format(',')(n < 100 ? n : +d3.format('.2r')(n));
-  const q = (sel) => document.querySelector(sel);
-  const setText = (sel, text) => { const el = typeof sel === 'string' ? q(sel) : sel; el.textContent = text; el.classList.remove('dash-skeleton'); };
-  let firstBalls = true;
-  const hasParams = typeof dash.params === 'function' && typeof dash.setParams === 'function';
-  let localRange = { from: '2026-07-01', to: null };
-  const getRange = () => { const p = hasParams ? dash.params() : localRange; return { from: p.from || null, to: p.to || null }; };
-  const setRange = (r) => { if (hasParams) dash.setParams(r); else { localRange = { ...localRange, ...r }; drawRange(); drawTable(); } };
-  if (hasParams && dash.params().from === undefined) dash.setParams({ from: '2026-07-01', to: null });
+  const q = (s) => document.querySelector(s);
+  const D3 = (f) => d3.utcFormat(f);
+  const day = (s) => new Date(s + 'T00:00:00Z');
+  const fmtDate = (s) => (s ? D3('%b %-d, %Y')(day(s)) : '—');
+  const fmtShort = (s) => D3('%b %-d')(day(s));
+  const fmtLong = (s) => D3('%A, %B %-d')(day(s));
   const iso = (d) => d.toISOString().slice(0, 10);
-  const presetRange = (name, last) => {
-    if (name === 'jul') return { from: '2026-07-01', to: null };
-    if (name === 'since') return { from: CUTOFF, to: null };
-    if (name === 'before') return { from: null, to: iso(new Date(Date.parse(CUTOFF + 'T00:00:00Z') - 864e5)) };
-    if (name === '3m') { const d = new Date(last + 'T00:00:00Z'); d.setUTCMonth(d.getUTCMonth() - 3); d.setUTCDate(d.getUTCDate() + 1); return { from: iso(d), to: null }; }
-    return { from: null, to: null };
+  const RANDOM = 36 / 47; // average matches per drawing for any six numbers
+  const el = (tag, cls, text) => { const e = document.createElement(tag); if (cls) e.className = cls; if (text != null) e.textContent = text; return e; };
+  const setText = (sel, text) => { const e = q(sel); e.textContent = text; e.classList.remove('dash-skeleton'); };
+
+  // ---- Your numbers, kept in this browser only ----
+  const MINE_KEY = 'jl-my-numbers';
+  const readMine = () => {
+    try {
+      const v = JSON.parse(localStorage.getItem(MINE_KEY) || '[]');
+      return Array.isArray(v) && v.length === 6 && v.every((n) => Number.isInteger(n) && n >= 1 && n <= 47) && new Set(v).size === 6 ? [...v].sort((a, b) => a - b) : [];
+    } catch { return []; }
   };
-  document.querySelectorAll('#presets button').forEach((btn) => btn.addEventListener('click', () => {
-    const D = dash.data('draws'); const last = D.status === 'ok' && D.data.length ? D.data.map((r) => String(r.date).slice(0, 10)).sort().pop() : iso(new Date());
-    setRange(presetRange(btn.dataset.preset, last));
-  }));
-  ['#r-from', '#r-to'].forEach((sel) => {
-    const el = q(sel);
-    el.addEventListener('change', () => {
-      if (el.value && !el.validity.valid) return;
-      setRange(sel === '#r-from' ? { from: el.value || null } : { to: el.value || null });
-    });
-    el.addEventListener('blur', () => showRangeInputs());
-  });
+  let mine = readMine();
+  let editingMine = !mine.length;
+  const isMine = (n) => mine.includes(n);
+  const ball = (n, caption) => {
+    const s = el('span', isMine(n) ? 'mine' : '', String(n));
+    if (caption == null) return s;
+    const fig = el('figure'); fig.append(s, el('figcaption', '', caption)); return fig;
+  };
 
-  const fail = (el) => { el.replaceChildren(); const d = document.createElement('div'); d.className = 'jl-fail'; d.textContent = 'Failed to load'; el.appendChild(d); el.classList.remove('dash-skeleton'); };
-  const bad = (st) => st === 'error' || st === 'connect' || st === 'declined' || st === 'missing';
-
-  function drawTiles() {
-    const S = dash.data('summary');
-    const fields = document.querySelectorAll('[data-source="summary"][data-field]');
-    if (S.status !== 'ok' || !S.data.length) {
-      if (bad(S.status)) fields.forEach((el) => { el.textContent = '—'; el.classList.remove('dash-skeleton'); });
-      ['#takeaway', '#switch-note', '#coverage'].forEach((s) => { if (bad(S.status)) setText(s, ''); });
-      return;
-    }
-    const r = S.data[0];
-    fields.forEach((el) => {
-      const f = el.dataset.field, v = r[f];
-      if (f === 'hot_all' || f === 'hot_since') {
-        el.replaceChildren(...String(v).split(' ').map((x) => { const sp = document.createElement('span'); sp.textContent = x; return sp; }));
-        el.classList.remove('dash-skeleton');
-      } else if (f.endsWith('_date')) setText(el, fmtDate(v));
-      else if (f.endsWith('_avg')) setText(el, d3.format('.2f')(v));
-      else setText(el, d3.format(',')(v));
-    });
-    const pill = (el, odds, avg) => {
-      const strong = odds >= 20 && avg > r.random_avg;
-      el.className = 'jl-pill ' + (strong ? 'up' : 'flat');
-      el.textContent = strong ? 'Beat random. Luck alone: ' + fmtOdds(odds) : 'About what random picks do';
-    };
-    pill(q('#pill-before'), r.bt_before_odds, r.bt_before_avg);
-    pill(q('#pill-since'), r.bt_since_odds, r.bt_since_avg);
-
-    const tk = q('#takeaway');
-    tk.replaceChildren();
-    const add = (t, bold) => { const n = bold ? document.createElement('b') : document.createTextNode(t); if (bold) n.textContent = t; tk.appendChild(n); };
-    const verdict = (odds, avg) => avg > r.random_avg && odds >= 20 ? 'well above' : avg > r.random_avg ? 'a little above' : 'at or below';
-    const vb = verdict(r.bt_before_odds, r.bt_before_avg), vs = verdict(r.bt_since_odds, r.bt_since_avg);
-    add('Before March 2026, playing the six most-drawn numbers matched ');
-    add(d3.format('.2f')(r.bt_before_avg) + ' a draw', true);
-    add(', ' + vb + ' the ' + d3.format('.2f')(r.random_avg) + ' random picks get. Since March it has matched ');
-    add(d3.format('.2f')(r.bt_since_avg), true);
-    add(', ' + vs + ' random. ' + (vb === 'well above' && vs !== 'well above'
-      ? 'That fits Jerry\'s machine-change hunch, though the data can\'t prove it.'
-      : 'The two periods don\'t look clearly different right now.'));
-    tk.classList.remove('dash-skeleton');
-
-    setText('#switch-note',
-      'Before March, the counts per number were lopsided enough to happen by chance only about ' + fmtOdds(r.uneven_before_odds) +
-      ' times. Since March they look ordinary (' + fmtOdds(r.uneven_since_odds) + '). A direct test of whether the two periods differ comes out at about ' +
-      fmtOdds(r.change_odds) + ', which is suggestive but not strong evidence on its own.');
-    setText('#coverage',
-      'Covers ' + d3.format(',')(r.draws) + ' draws from ' + fmtDate(r.first_date) + ' to ' + fmtDate(r.last_date) + ': ' +
-      d3.format(',')(r.draws_before) + ' before March 1, 2026 and ' + d3.format(',')(r.draws_since) + ' since. Draws between ' + fmtDate(r.gap_from) +
-      ' and ' + fmtDate(r.gap_to) + ' are mostly missing (' + r.gap_found + ' found in that stretch); adding them would sharpen the comparison.');
-  }
-
-  function drawChart() {
-    const box = q('#bt-chart');
-    const B = dash.data('backtest'), S = dash.data('summary');
-    if (B.status !== 'ok') { if (bad(B.status)) fail(box); else box.replaceChildren(); return; }
-    const rows = B.data.filter((r) => r.rolling_avg != null).map((r) => ({ ...r, d: new Date(r.date + 'T00:00:00Z') }));
-    const mu = S.status === 'ok' && S.data.length ? S.data[0].random_avg : 36 / 47;
-    box.replaceChildren();
-    const W = Math.max(280, box.clientWidth), H = 280;
-    const svg = d3.select(box).append('svg').attr('width', '100%').attr('viewBox', `0 0 ${W} ${H}`).attr('role', 'img')
-      .attr('aria-label', 'Twenty-draw average of hot-six matches over time');
-    const yMax = Math.max(1.6, d3.max(rows, (r) => r.rolling_avg) + 0.1);
-    const y = d3.scaleLinear([0, yMax], [H - 28, 14]);
-    const yTicks = y.ticks(5);
-    const probe = svg.append('text').attr('font-size', 'var(--cds-font-size-caption)').text(d3.format('.1f')(yTicks[yTicks.length - 1]));
-    const lw = probe.node().getComputedTextLength(); probe.remove();
-    const m = { l: lw + 10, r: 12 };
-    const x = d3.scaleUtc(d3.extent(rows, (r) => r.d), [m.l, W - m.r]);
-    const g = svg.append('g');
-    g.selectAll('line.grid').data(yTicks).join('line').attr('x1', m.l).attr('x2', W - m.r).attr('y1', y).attr('y2', y).attr('stroke', 'var(--cds-chart-grid)');
-    g.selectAll('text.yt').data(yTicks).join('text').attr('x', m.l - 6).attr('y', y).attr('dy', '0.32em').attr('text-anchor', 'end')
-      .attr('font-size', 'var(--cds-font-size-caption)').attr('fill', 'var(--color-fg-muted)').text(d3.format('.1f'));
-    const nTicks = W < 480 ? 3 : 6;
-    g.selectAll('text.xt').data(x.ticks(nTicks)).join('text').attr('x', x).attr('y', H - 8).attr('text-anchor', 'middle')
-      .attr('font-size', 'var(--cds-font-size-caption)').attr('fill', 'var(--color-fg-muted)').text(d3.utcFormat('%b %Y'));
-    // Before / since shading and cutoff marker
-    const xc = x(new Date(CUTOFF + 'T00:00:00Z'));
-    g.append('rect').attr('x', xc).attr('y', 14).attr('width', Math.max(0, W - m.r - xc)).attr('height', H - 42).attr('fill', 'var(--color-fg)').attr('opacity', 0.04);
-    g.append('line').attr('x1', xc).attr('x2', xc).attr('y1', 14).attr('y2', H - 28).attr('stroke', 'var(--cds-chart-reference)').attr('stroke-dasharray', '2 3');
-    g.append('text').attr('x', xc + 6).attr('y', 26).attr('font-size', 'var(--cds-font-size-caption)').attr('fill', 'var(--color-fg-muted)').text('Suspected switch');
-    // Random baseline
-    g.append('line').attr('x1', m.l).attr('x2', W - m.r).attr('y1', y(mu)).attr('y2', y(mu)).attr('stroke', 'var(--cds-chart-reference)').attr('stroke-dasharray', '6 4');
-    const rl = g.append('text').attr('x', m.l + 4).attr('y', y(mu) + 14).attr('font-size', 'var(--cds-font-size-caption)').attr('fill', 'var(--color-fg-muted)').text('Random picks ' + d3.format('.2f')(mu));
-    // Area + line
-    const gradId = 'jl-grad';
-    const defs = svg.append('defs').append('linearGradient').attr('id', gradId).attr('x1', 0).attr('x2', 0).attr('y1', 0).attr('y2', 1);
-    [[0, .26], [.25, .16], [.5, .08], [.75, .03], [1, 0]].forEach(([o, a]) => defs.append('stop').attr('offset', o).attr('style', `stop-color:${dash.colors[0]};stop-opacity:${a}`));
-    g.append('path').datum(rows).attr('fill', `url(#${gradId})`).attr('d', d3.area().x((r) => x(r.d)).y0(y(0)).y1((r) => y(r.rolling_avg)));
-    g.append('path').datum(rows).attr('fill', 'none').attr('stroke', dash.colors[0]).attr('stroke-width', 2).attr('stroke-linejoin', 'round').attr('stroke-linecap', 'round')
-      .attr('d', d3.line().x((r) => x(r.d)).y((r) => y(r.rolling_avg)));
-    const lastR = rows[rows.length - 1];
-    g.append('circle').attr('cx', x(lastR.d)).attr('cy', y(lastR.rolling_avg)).attr('r', 3.5).attr('fill', dash.colors[0]);
-    // Tooltip
-    const tip = d3.select(box).append('div').attr('class', 'jl-tip').style('display', 'none');
-    const dot = g.append('circle').attr('r', 4).attr('fill', dash.colors[0]).style('display', 'none');
-    const bis = d3.bisector((r) => r.d).center;
-    svg.append('rect').attr('x', m.l).attr('y', 0).attr('width', W - m.l - m.r).attr('height', H).attr('fill', 'transparent')
-      .on('pointermove', (ev) => {
-        const [px] = d3.pointer(ev); const r = rows[bis(rows, x.invert(px))]; if (!r) return;
-        dot.style('display', null).attr('cx', x(r.d)).attr('cy', y(r.rolling_avg));
-        tip.style('display', null).replaceChildren();
-        tip.append('div').attr('class', 'd').text(fmtDate(r.date));
-        tip.append('div').text('20-draw average: ' + d3.format('.2f')(r.rolling_avg));
-        tip.append('div').text('This draw: ' + r.matches + ' of 6' + (r.matched ? ' (' + r.matched + ')' : ''));
-        const bw = box.clientWidth, tw = tip.node().offsetWidth, sx = bw / W;
-        let left = x(r.d) * sx + 12; if (left + tw > bw) left = x(r.d) * sx - tw - 12;
-        tip.style('left', Math.max(0, left) + 'px').style('top', Math.max(0, y(r.rolling_avg) * sx - 50) + 'px');
-      })
-      .on('pointerleave', () => { tip.style('display', 'none'); dot.style('display', 'none'); });
-  }
-
-  function inRangeRows() {
+  // ---- Data ----
+  const allDraws = () => {
     const D = dash.data('draws');
     if (D.status !== 'ok') return null;
-    const all = D.data.map((d) => ({ date: String(d.date).slice(0, 10), n: [d.n1, d.n2, d.n3, d.n4, d.n5, d.n6].map(Number) })).sort((a, b) => a.date.localeCompare(b.date));
-    const { from, to } = getRange();
-    return { all, rows: all.filter((d) => (!from || d.date >= from) && (!to || d.date <= to)), from, to };
+    return D.data.map((d) => ({ date: String(d.date).slice(0, 10), n: [d.n1, d.n2, d.n3, d.n4, d.n5, d.n6].map(Number).sort((a, b) => a - b) }))
+      .sort((a, b) => a.date.localeCompare(b.date));
+  };
+  const getRange = () => { const p = dash.params(); return { from: p.from || null, to: p.to || null }; };
+  const setRange = (r) => dash.setParams(r);
+  const presetRange = (name, all) => {
+    if (name === 'since') return { from: CUTOFF, to: null };
+    if (name === 'last20') return { from: all.length > 20 ? all[all.length - 20].date : null, to: null };
+    if (name === '3m') { const d = day(all[all.length - 1].date); d.setUTCMonth(d.getUTCMonth() - 3); d.setUTCDate(d.getUTCDate() + 1); return { from: iso(d), to: null }; }
+    return { from: null, to: null };
+  };
+  const inRange = (all) => { const { from, to } = getRange(); return all.filter((d) => (!from || d.date >= from) && (!to || d.date <= to)); };
+
+  // ---- Controls ----
+  document.querySelectorAll('#presets button').forEach((b) => b.addEventListener('click', () => {
+    const all = allDraws(); if (all && all.length) setRange(presetRange(b.dataset.preset, all));
+  }));
+  ['#r-from', '#r-to'].forEach((sel) => {
+    const e = q(sel);
+    e.addEventListener('change', () => { if (e.value && !e.validity.valid) return; setRange(sel === '#r-from' ? { from: e.value || null } : { to: e.value || null }); });
+  });
+  q('#search').addEventListener('input', () => { const all = allDraws(); if (all) drawTable(inRange(all)); });
+
+  const mBoxes = [...document.querySelectorAll('#m-nums input')];
+  jlWireBalls(mBoxes, () => { q('#m-msg').textContent = ''; });
+  const showMineForm = (on) => {
+    editingMine = on;
+    q('#m-form').hidden = !on; q('#m-show').hidden = on || !mine.length;
+    q('#m-cancel').hidden = !mine.length;
+    if (on) { mBoxes.forEach((b, i) => { b.value = mine[i] ?? ''; b.classList.remove('bad'); }); }
+  };
+  q('#m-change').addEventListener('click', () => { showMineForm(true); mBoxes[0].focus(); mBoxes[0].select(); });
+  q('#m-cancel').addEventListener('click', () => { showMineForm(false); q('#m-msg').textContent = ''; });
+  q('#m-form').addEventListener('submit', (e) => {
+    e.preventDefault();
+    mBoxes.forEach((b) => b.classList.remove('bad'));
+    const r = jlCheckSix(mBoxes.map((b) => b.value.trim()));
+    const msg = q('#m-msg');
+    if (r.error) { r.bad.forEach((i) => mBoxes[i].classList.add('bad')); mBoxes[r.bad[0]].focus(); msg.textContent = r.error; msg.className = 'jl-msg err'; return; }
+    mine = r.nums;
+    let kept = true; try { localStorage.setItem(MINE_KEY, JSON.stringify(mine)); } catch { kept = false; }
+    msg.textContent = kept ? '' : 'Saved for now, but this browser would not keep them after it closes.'; msg.className = 'jl-msg ' + (kept ? '' : 'ask');
+    showMineForm(false);
+    drawAll();
+  });
+
+  // ---- Drawing ----
+  function drawTop(all) {
+    const last = all[all.length - 1];
+    setText('#t-last-date', fmtLong(last.date));
+    q('#t-last-balls').replaceChildren(...last.n.map((n) => ball(n)));
+    const hit = last.n.filter(isMine);
+    q('#t-last-mine').textContent = mine.length ? (hit.length ? 'You matched ' + hit.length + ': ' + hit.join(', ') + '.' : 'None of your numbers this time.') : '';
+    // Next Wednesday or Saturday; tonight's counts until 8 pm
+    const now = new Date(), t = new Date(Date.UTC(now.getFullYear(), now.getMonth(), now.getDate()));
+    let d = new Date(t);
+    const drawn = (x) => all.some((r) => r.date === iso(x));
+    while (!([3, 6].includes(d.getUTCDay()) && !drawn(d) && !(iso(d) === iso(t) && now.getHours() >= 21))) d = new Date(d.getTime() + 864e5);
+    setText('#t-next', iso(d) === iso(t) ? 'Tonight, ' + fmtLong(iso(d)) : fmtLong(iso(d)));
+    const since = all.filter((r) => r.date >= CUTOFF);
+    setText('#t-since', d3.format(',')(since.length));
+    q('#t-since-sub').textContent = since.length ? fmtShort(since[0].date) + ' to ' + fmtDate(since[since.length - 1].date) : '';
   }
 
-  function showRangeInputs() {
-    const R = inRangeRows(); if (!R) return;
-    const first = R.all[0].date, last = R.all[R.all.length - 1].date;
+  function drawRangeCtl(all, rows) {
+    const first = all[0].date, last = all[all.length - 1].date, { from, to } = getRange();
     const f = q('#r-from'), t = q('#r-to');
-    [f, t].forEach((el) => { el.min = first; el.max = last; });
-    if (f !== document.activeElement) f.value = R.from || first;
-    if (t !== document.activeElement) t.value = R.to || last;
+    [f, t].forEach((x) => { x.min = first; x.max = last; });
+    if (f !== document.activeElement) f.value = from || first;
+    if (t !== document.activeElement) t.value = to || last;
     document.querySelectorAll('#presets button').forEach((b) => {
-      const p = presetRange(b.dataset.preset, last);
-      const same = (p.from || null) === (R.from || null) && (p.to || null) === (R.to || null);
-      b.setAttribute('aria-pressed', String(same));
+      const p = presetRange(b.dataset.preset, all);
+      b.setAttribute('aria-pressed', String((p.from || null) === (from || null) && (p.to || null) === (to || null)));
     });
+    const s = q('#r-summary'); s.replaceChildren(); s.classList.remove('dash-skeleton');
+    const add = (txt, bold) => s.appendChild(bold ? el('b', '', txt) : document.createTextNode(txt));
+    if (!rows.length) { add('No drawings fall between those dates. Pick a wider range.'); return; }
+    add('Counting '); add(d3.format(',')(rows.length) + ' drawings', true);
+    add(' from ' + fmtDate(rows[0].date) + ' to ' + fmtDate(rows[rows.length - 1].date) + '. An even share would be about ' + d3.format('.1f')(rows.length * 6 / 47) + ' times for each number.');
+    if (rows.length < 60) add(' With this few drawings, numbers drift a few above or below that by pure chance, so treat small differences as noise.');
+    const have = new Set(rows.map((r) => r.date)); let missing = 0;
+    for (let x = day(rows[0].date).getTime(); x <= day(rows[rows.length - 1].date).getTime(); x += 864e5) { const d = new Date(x); if ([3, 6].includes(d.getUTCDay()) && !have.has(iso(d))) missing++; }
+    if (missing) add(' About ' + missing + ' drawings in this stretch are missing from the records.');
   }
 
-  function sixBalls(box, list) {
-    box.replaceChildren(...list.map((r) => {
-      const fig = document.createElement('figure');
-      const ball = document.createElement('span'); ball.textContent = r.number;
-      const cap = document.createElement('figcaption'); cap.textContent = r.count + '×';
-      fig.append(ball, cap); return fig;
-    }));
-  }
-
-  function drawRange() {
-    const R = inRangeRows();
-    const ids = ['#r-summary', '#r-n', '#r-bt', '#r-sum', '#r-odd'];
-    if (!R) {
-      const st = dash.data('draws').status;
-      if (bad(st)) { fail(q('#balls')); ids.forEach((s) => setText(s, '—')); }
-      return;
-    }
-    showRangeInputs();
-    const rows = R.rows, n = rows.length;
-    const lo = rows.length ? rows[0].date : null, hi = rows.length ? rows[rows.length - 1].date : null;
-
-    // Missing draws: Wednesdays and Saturdays inside the covered span with no result stored
-    let missing = 0;
-    if (n) {
-      const have = new Set(rows.map((r) => r.date));
-      const startD = Date.parse((R.from && R.from > R.all[0].date ? R.from : R.all[0].date) + 'T00:00:00Z');
-      const endD = Date.parse((R.to && R.to < R.all[R.all.length - 1].date ? R.to : R.all[R.all.length - 1].date) + 'T00:00:00Z');
-      for (let t = startD; t <= endD; t += 864e5) { const d = new Date(t); const wd = d.getUTCDay(); if ((wd === 3 || wd === 6) && !have.has(iso(d))) missing++; }
-    }
-
-    const sumEl = q('#r-summary'); sumEl.replaceChildren(); sumEl.classList.remove('dash-skeleton');
-    const add = (t, bold) => { const el = bold ? document.createElement('b') : document.createTextNode(t); if (bold) el.textContent = t; sumEl.appendChild(el); };
-    if (!n) {
-      add('No draws fall between those dates. Pick a wider range.');
-      ['#r-n', '#r-bt', '#r-sum', '#r-odd'].forEach((s) => setText(s, '—'));
-      ['#r-n-sub', '#r-bt-sub', '#r-odd-sub'].forEach((s) => setText(s, ''));
-      q('#r-bt-pill').hidden = true;
-      ['#r-hot', '#r-cold', '#balls', '#r-pairs', '#balls-legend'].forEach((s) => q(s).replaceChildren());
-      return;
-    }
-    const exp = n * 6 / 47;
-    add('Counting '); add(d3.format(',')(n) + ' draws', true); add(' from ' + fmtDate(lo) + ' to ' + fmtDate(hi) + '. ');
-    add('An even share would be about ' + d3.format('.1f')(exp) + ' times per number. ');
-    if (n < 60) add('With this few draws, numbers drift a few hits above or below that by pure chance, so treat small gaps as noise. ');
-    if (missing) add('About ' + missing + ' draws in this stretch are missing from the data.');
-
-    // Counts
+  function counts(rows) {
     const count = new Array(48).fill(0), lastSeen = new Array(48).fill(null);
     rows.forEach((d) => d.n.forEach((x) => { count[x]++; lastSeen[x] = d.date; }));
-    const nums = Array.from({ length: 47 }, (_, i) => ({ number: i + 1, count: count[i + 1], last: lastSeen[i + 1] }));
+    return Array.from({ length: 47 }, (_, i) => ({ number: i + 1, count: count[i + 1], last: lastSeen[i + 1] }));
+  }
+
+  function drawMine(all, rows, nums) {
+    showMineForm(editingMine);
+    if (!mine.length || editingMine) return;
+    q('#m-balls').replaceChildren(...mine.map((n) => ball(n)));
+    const s = q('#m-sum'); s.replaceChildren();
+    const add = (txt, bold) => s.appendChild(bold ? el('b', '', txt) : document.createTextNode(txt));
+    const tbody = q('#m-table tbody');
+    if (!rows.length) { add('No drawings in these dates.'); q('#m-dist').replaceChildren(); tbody.replaceChildren(); return; }
+    const hits = rows.map((r) => r.n.filter(isMine).length);
+    const avg = d3.mean(hits), best = d3.max(hits);
+    const bestDates = rows.filter((r, i) => hits[i] === best).map((r) => fmtDate(r.date));
+    add('Over these ' + rows.length + ' drawings your six matched '); add(d3.format('.2f')(avg) + ' a drawing', true);
+    add(' on average. Any six numbers average ' + d3.format('.2f')(RANDOM) + ', so yours did ' + (Math.abs(avg - RANDOM) < 0.1 ? 'about the same as random picks' : avg > RANDOM ? 'better than random picks' : 'worse than random picks') + '. ');
+    if (best > 0) { add('Best: '); add(best + ' matched', true); add(' on ' + (bestDates.length > 2 ? bestDates.slice(-2).join(' and ') + ' and ' + (bestDates.length - 2) + ' other' + (bestDates.length - 2 === 1 ? '' : 's') : bestDates.join(' and ')) + '.'); }
+    // How many drawings by number matched
+    const groups = [0, 1, 2, 3].map((k) => ({ k, n: hits.filter((h) => (k === 3 ? h >= 3 : h === k)).length }));
+    q('#m-dist').replaceChildren(...groups.map((g) => {
+      const box = el('div', 'jl-mb' + (g.k >= 2 ? ' good' : ''));
+      box.append(el('span', 'jl-big', String(g.n)), el('span', 'jl-sub', (g.k === 3 ? '3 or more' : g.k === 0 ? 'none' : String(g.k)) + ' matched'));
+      return box;
+    }));
+    const exp = rows.length * 6 / 47, lastIdx = new Map();
+    all.forEach((r, i) => r.n.forEach((x) => lastIdx.set(x, i)));
+    tbody.replaceChildren(...mine.map((n) => {
+      const c = nums[n - 1], tr = el('tr');
+      const gap = lastIdx.has(n) ? all.length - 1 - lastIdx.get(n) : all.length;
+      tr.append(el('td', '', String(n)), el('td', 'num', String(c.count)), el('td', 'num', d3.format('.1f')(exp)),
+        el('td', '', c.last ? fmtDate(c.last) : 'not in these dates'), el('td', 'num', String(gap)));
+      tr.children[1].classList.add(c.count >= exp ? 'up' : 'down');
+      return tr;
+    }));
+  }
+
+  function drawHotCold(nums) {
     const hot = [...nums].sort((a, b) => b.count - a.count || String(b.last).localeCompare(String(a.last)) || a.number - b.number).slice(0, 6);
     const cold = [...nums].sort((a, b) => a.count - b.count || String(a.last || '').localeCompare(String(b.last || '')) || a.number - b.number).slice(0, 6);
-    sixBalls(q('#r-hot'), hot); sixBalls(q('#r-cold'), cold);
+    q('#r-hot').replaceChildren(...hot.map((r) => ball(r.number, r.count + '×')));
+    q('#r-cold').replaceChildren(...cold.map((r) => ball(r.number, r.count + '×')));
+  }
 
-    setText('#r-n', d3.format(',')(n));
-    setText('#r-n-sub', fmtShort(lo) + ' to ' + fmtDate(hi));
-
-    // Hot-six method inside the range (picks use all history before each draw)
-    const B = dash.data('backtest');
-    const pill = q('#r-bt-pill');
-    if (B.status === 'ok') {
-      const bt = B.data.filter((r) => (!R.from || r.date >= R.from) && (!R.to || r.date <= R.to));
-      if (bt.length) {
-        const mu = 36 / 47, v = 6 * (6 / 47) * (41 / 47) * (41 / 46);
-        const m = bt.reduce((s, r) => s + r.matches, 0) / bt.length;
-        const z = (m - mu) / Math.sqrt(v / bt.length);
-        const erfc = (x) => { const t = 1 / (1 + 0.5 * Math.abs(x)); const r = t * Math.exp(-x * x - 1.26551223 + t * (1.00002368 + t * (0.37409196 + t * (0.09678418 + t * (-0.18628806 + t * (0.27886807 + t * (-1.13520398 + t * (1.48851587 + t * (-0.82215223 + t * 0.17087277))))))))); return x >= 0 ? r : 2 - r; };
-        const p = 0.5 * erfc(z / Math.SQRT2);
-        setText('#r-bt', d3.format('.2f')(m));
-        setText('#r-bt-sub', 'matched per draw on average over ' + bt.length + ' draws. Random picks average ' + d3.format('.2f')(mu) + '.');
-        const strong = m > mu && p <= 0.05;
-        pill.hidden = false; pill.className = 'jl-pill ' + (strong ? 'up' : 'flat');
-        pill.textContent = strong ? 'Beat random. Luck alone: ' + fmtOdds(Math.round(1 / p)) : (m > mu ? 'A little above random' : 'About what random picks do');
-      } else { setText('#r-bt', '—'); setText('#r-bt-sub', 'Not enough earlier draws to make picks for these dates.'); pill.hidden = true; }
-    }
-
-    const sums = rows.map((d) => d.n.reduce((a, b) => a + b, 0));
-    setText('#r-sum', d3.format('.0f')(d3.mean(sums)));
-    const odds = d3.rollups(rows, (v) => v.length, (d) => d.n.filter((x) => x % 2).length).sort((a, b) => b[1] - a[1]);
-    const [oc, ocn] = odds[0];
-    setText('#r-odd', oc + '–' + (6 - oc));
-    setText('#r-odd-sub', oc + ' odd and ' + (6 - oc) + ' even numbers, in ' + d3.format('.0%')(ocn / n) + ' of these draws. In random draws the most common split is 3–3, about 1 draw in 3.');
-
-    // Ball board
-    const box = q('#balls'), leg = q('#balls-legend');
-    box.replaceChildren();
-    nums.forEach((r, i) => {
-      const ratio = exp ? r.count / exp : 1;
-      const el = document.createElement('div');
-      el.className = 'jl-ball' + (ratio < 1 ? ' cold' : '') + (firstBalls ? ' in' : '');
-      if (firstBalls) el.style.animationDelay = (i * 12) + 'ms';
-      const pct = Math.round(Math.min(1, Math.abs(ratio - 1) / 0.8) * 70);
-      el.style.background = ratio >= 1
-        ? `color-mix(in srgb, ${dash.colors[0]} ${pct}%, var(--color-panel))`
-        : `color-mix(in srgb, ${dash.colors[1]} ${Math.round(pct * 0.6)}%, var(--color-panel))`;
-      const nn = document.createElement('span'); nn.className = 'n'; nn.textContent = r.number;
-      const c = document.createElement('span'); c.className = 'c'; c.textContent = r.count;
-      el.append(nn, c);
-      el.setAttribute('aria-label', `Number ${r.number}: drawn ${r.count} times, even share ${d3.format('.1f')(exp)}`);
-      box.appendChild(el);
-    });
+  let firstBalls = true;
+  function drawBalls(rows, nums) {
+    const box = q('#balls'), leg = q('#balls-legend'), exp = rows.length * 6 / 47;
+    box.replaceChildren(...nums.map((r, i) => {
+      const ratio = exp ? r.count / exp : 1, pct = Math.round(Math.min(1, Math.abs(ratio - 1) / 0.8) * 70);
+      const b = el('div', 'jl-ball' + (ratio < 1 ? ' cold' : '') + (isMine(r.number) ? ' mine' : '') + (firstBalls ? ' in' : ''));
+      if (firstBalls) b.style.animationDelay = (i * 12) + 'ms';
+      b.style.background = ratio >= 1 ? `color-mix(in srgb, ${dash.colors[0]} ${pct}%, var(--color-panel))` : `color-mix(in srgb, ${dash.colors[1]} ${Math.round(pct * 0.6)}%, var(--color-panel))`;
+      b.append(el('span', 'n', String(r.number)), el('span', 'c', String(r.count)));
+      b.setAttribute('aria-label', `Number ${r.number}: drawn ${r.count} times, even share ${d3.format('.1f')(exp)}${isMine(r.number) ? ', one of your numbers' : ''}`);
+      return b;
+    }));
     firstBalls = false;
     leg.replaceChildren();
-    const item = (bg, text, dashed) => { const sp = document.createElement('span'); const i = document.createElement('i'); i.style.background = bg; if (dashed) i.style.borderStyle = 'dashed'; sp.append(i, text); leg.appendChild(sp); };
+    const item = (bg, text, style) => { const sp = el('span'); const i = el('i'); i.style.background = bg; if (style) Object.assign(i.style, style); sp.append(i, text); leg.appendChild(sp); };
     item(`color-mix(in srgb, ${dash.colors[0]} 60%, var(--color-panel))`, 'Drawn more than an even share');
-    item(`color-mix(in srgb, ${dash.colors[1]} 40%, var(--color-panel))`, 'Drawn less', true);
-    const e = document.createElement('span'); e.textContent = 'Even share for these dates: ' + d3.format('.1f')(exp) + ' times each'; leg.appendChild(e);
+    item(`color-mix(in srgb, ${dash.colors[1]} 40%, var(--color-panel))`, 'Drawn less', { borderStyle: 'dashed' });
+    if (mine.length) item('var(--color-panel)', 'Your number', { outline: '2px solid var(--color-fg)', outlineOffset: '1px' });
+    leg.appendChild(el('span', '', 'Even share: ' + d3.format('.1f')(exp) + ' times each'));
+  }
 
-    // Pairs
+  function drawHits(all) {
+    const last = all.slice(-12).reverse(), tbl = q('#hits');
+    const head = el('tr'); head.appendChild(el('th', 'd', 'Drawing'));
+    for (let n = 1; n <= 47; n++) head.appendChild(el('th', isMine(n) ? 'mine' : '', String(n)));
+    const thead = el('thead'); thead.appendChild(head);
+    const tbody = el('tbody');
+    last.forEach((r) => {
+      const tr = el('tr'); tr.appendChild(el('th', 'd', fmtShort(r.date)));
+      for (let n = 1; n <= 47; n++) {
+        const td = el('td', isMine(n) ? 'mine' : '');
+        if (r.n.includes(n)) { td.appendChild(el('i', '', '')); td.setAttribute('aria-label', n + ' drawn ' + fmtShort(r.date)); }
+        tr.appendChild(td);
+      }
+      tbody.appendChild(tr);
+    });
+    tbl.replaceChildren(thead, tbody);
+  }
+
+  function drawPairsShape(rows) {
     const pc = new Map();
     rows.forEach((d) => { for (let i = 0; i < 6; i++) for (let j = i + 1; j < 6; j++) { const k = d.n[i] + '-' + d.n[j]; pc.set(k, (pc.get(k) || 0) + 1); } });
-    const pexp = n * 15 / 1081;
-    const top = [...pc].sort((a, b) => b[1] - a[1] || a[0].localeCompare(b[0], undefined, { numeric: true })).slice(0, 6);
+    const pexp = rows.length * 15 / 1081;
+    const top = [...pc].sort((a, b) => b[1] - a[1] || a[0].localeCompare(b[0], undefined, { numeric: true })).slice(0, 8);
     q('#r-pairs').replaceChildren(...top.map(([k, v]) => {
-      const li = document.createElement('li');
-      const a = document.createElement('span'); a.textContent = k.replace('-', ' & ');
-      const b = document.createElement('span'); b.textContent = v + ' times together (about ' + d3.format('.1f')(pexp) + ' expected)';
-      li.append(a, b); return li;
+      const li = el('li'); const [a, b] = k.split('-').map(Number);
+      const left = el('span', 'jl-pair'); left.append(ball(a), ball(b));
+      li.append(left, el('span', '', v + ' times together (about ' + d3.format('.1f')(pexp) + ' expected)'));
+      return li;
     }));
+    if (!rows.length) { ['#r-sum', '#r-odd', '#r-low'].forEach((s) => setText(s, '—')); ['#r-odd-sub', '#r-low-sub'].forEach((s) => setText(s, '')); return; }
+    setText('#r-sum', d3.format('.0f')(d3.mean(rows, (d) => d3.sum(d.n))));
+    const split = (fn, a, b, sel) => {
+      const g = d3.rollups(rows, (v) => v.length, (d) => d.n.filter(fn).length).sort((x, y) => y[1] - x[1]);
+      const [k, c] = g[0];
+      setText(sel, k + '–' + (6 - k));
+      setText(sel + '-sub', k + ' ' + a + ' and ' + (6 - k) + ' ' + b + ', in ' + d3.format('.0%')(c / rows.length) + ' of these drawings. In random drawings 3–3 is most common, about 1 in 3.');
+    };
+    split((x) => x % 2, 'odd', 'even', '#r-odd');
+    split((x) => x <= 23, 'low (1–23)', 'high (24–47)', '#r-low');
   }
 
-  function drawGaps() {
-    const tb = q('#gap-table tbody');
-    const F = dash.data('freq');
-    if (F.status !== 'ok') { tb.replaceChildren(); return; }
-    tb.replaceChildren(...[...F.data].sort((a, b) => b.draws_since - a.draws_since || a.number - b.number).slice(0, 10).map((r) => {
-      const tr = document.createElement('tr'); tr.dataset.key = r.number;
-      [[r.number, ''], [r.draws_since, 'num'], [fmtDate(r.last_date), '']].forEach(([v, c]) => { const td = document.createElement('td'); td.textContent = v; if (c) td.className = c; tr.appendChild(td); });
+  function drawGaps(all) {
+    const lastIdx = new Map(); all.forEach((r, i) => r.n.forEach((x) => lastIdx.set(x, { i, date: r.date })));
+    const rows = Array.from({ length: 47 }, (_, k) => { const n = k + 1, L = lastIdx.get(n); return { n, gap: L ? all.length - 1 - L.i : all.length, date: L ? L.date : null }; })
+      .sort((a, b) => b.gap - a.gap || a.n - b.n).slice(0, 10);
+    q('#gap-table tbody').replaceChildren(...rows.map((r) => {
+      const tr = el('tr', isMine(r.n) ? 'mine' : '');
+      const td = el('td'); td.appendChild(ball(r.n));
+      tr.append(td, el('td', 'num', String(r.gap)), el('td', '', fmtDate(r.date)));
       return tr;
     }));
   }
 
-  function drawTable() {
-    const tb = q('#bt-table tbody');
-    const B = dash.data('backtest');
-    if (B.status !== 'ok') { tb.replaceChildren(); return; }
+  function drawTable(rows) {
     const term = q('#search').value.trim().toLowerCase();
-    const { from, to } = getRange();
-    const rows = [...B.data].reverse().filter((r) => (!from || r.date >= from) && (!to || r.date <= to)).filter((r) => !term || (r.date + ' ' + fmtDate(r.date) + ' ' + r.numbers + ' ').toLowerCase().includes(term)
-      || r.numbers.split(' ').includes(term));
-    tb.replaceChildren(...rows.map((r) => {
-      const tr = document.createElement('tr'); tr.dataset.key = r.date; if (r.period === 'Since March') tr.className = 'since';
-      const cells = [[r.date, ''], [r.numbers, ''], [r.pick, ''], [String(r.matches), 'num']];
-      cells.forEach(([v, c]) => { const td = document.createElement('td'); td.textContent = v; if (c) td.className = c; tr.appendChild(td); });
+    q('#draw-mine-h').hidden = !mine.length;
+    const list = [...rows].reverse().filter((r) => !term || r.n.map(String).includes(term) || (r.date + ' ' + fmtDate(r.date)).toLowerCase().includes(term));
+    q('#draw-table tbody').replaceChildren(...list.map((r) => {
+      const tr = el('tr'), nums = el('td', 'jl-drawn'), wrap = el('div');
+      r.n.forEach((n) => wrap.appendChild(el('span', isMine(n) ? 'mine' : '', String(n))));
+      nums.appendChild(wrap);
+      tr.append(el('td', '', fmtDate(r.date)), nums);
+      if (mine.length) { const h = r.n.filter(isMine).length; tr.appendChild(el('td', 'num' + (h >= 2 ? ' up' : ''), String(h))); }
       return tr;
     }));
   }
-  q('#search').addEventListener('input', drawTable);
 
-  dash.onData(() => { drawTiles(); drawChart(); drawRange(); drawGaps(); drawTable(); });
+  function drawAbout(all) {
+    const since = all.filter((r) => r.date >= CUTOFF).length;
+    const holes = [];
+    for (let i = 1; i < all.length; i++) if ((day(all[i].date) - day(all[i - 1].date)) / 864e5 > 10) holes.push(fmtDate(all[i - 1].date) + ' and ' + fmtDate(all[i].date));
+    q('#coverage').textContent = 'Covers ' + all.length + ' drawings from ' + fmtDate(all[0].date) + ' to ' + fmtDate(all[all.length - 1].date) + ', ' + since + ' of them since March 1, 2026.' +
+      (holes.length ? ' The records are missing drawings between ' + holes.join(', and between ') + '.' : '');
+  }
+
+  function drawAll() {
+    const all = allDraws();
+    if (!all) {
+      if (dash.data('draws').status === 'error') ['#t-last-date', '#t-next', '#t-since', '#r-summary'].forEach((s) => setText(s, 'Could not load the drawings. Try reloading the page.'));
+      return;
+    }
+    if (!all.length) return;
+    const rows = inRange(all), nums = counts(rows);
+    drawTop(all); drawRangeCtl(all, rows); drawMine(all, rows, nums); drawHotCold(nums); drawBalls(rows, nums);
+    drawHits(all); drawPairsShape(rows); drawGaps(all); drawTable(rows); drawAbout(all);
+  }
+  dash.onData(drawAll);
 })();
 </script>
+
 
 <script>
 /* Entry card: Jerry types in each new drawing; it is saved through /api/draws and the whole board recalculates. */
@@ -894,26 +831,7 @@ dash.calc('summary', {
   chips.addEventListener('click', (e) => { const c = e.target.closest('button'); if (!c) return; pickDate(c.dataset.date); boxes[0].focus(); });
   dateEl.addEventListener('change', () => pickDate(dateEl.value));
 
-  boxes.forEach((bx, i) => {
-    bx.addEventListener('input', () => {
-      bx.value = bx.value.replace(/\D/g, '').slice(0, 2);
-      bx.classList.remove('bad'); pendingReplace = null;
-      const v = bx.value;
-      // Move on after two digits, or after one digit that cannot start a number up to 47
-      if (i < 5 && (v.length === 2 || (v.length === 1 && v >= '5'))) { boxes[i + 1].focus(); boxes[i + 1].select(); }
-    });
-    bx.addEventListener('keydown', (e) => {
-      if (e.key === 'Backspace' && !bx.value && i > 0) { e.preventDefault(); boxes[i - 1].focus(); }
-      else if (e.key === ' ' || e.key === ',') { e.preventDefault(); if (bx.value && i < 5) { boxes[i + 1].focus(); boxes[i + 1].select(); } }
-    });
-    bx.addEventListener('paste', (e) => {
-      const found = ((e.clipboardData || window.clipboardData).getData('text').match(/\d+/g) || []);
-      if (found.length < 2) return;
-      e.preventDefault();
-      found.slice(0, 6 - i).forEach((n, k) => { boxes[i + k].value = n.slice(0, 2); boxes[i + k].classList.remove('bad'); });
-      boxes[Math.min(5, i + found.length)].focus();
-    });
-  });
+  jlWireBalls(boxes, () => { pendingReplace = null; });
 
   q('#e-forget').addEventListener('click', () => { pin = ''; pinStored = false; keep.clear(); pinEl.value = ''; showPin(); pinEl.focus(); });
 
@@ -996,7 +914,7 @@ dash.calc('summary', {
 })();
 </script>
 
-<p class="jl-foot">New drawings are added with the box at the top of the page. The Michigan Lottery's own results are the official record.</p>
+<p class="jl-foot">New drawings are added with the "Add a drawing" box near the top of the page. The Michigan Lottery's own results are the official record.</p>
 </main>
 </body>
 </html>
